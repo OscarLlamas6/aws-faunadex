@@ -1,0 +1,7 @@
+.Main {
+    text-align: center;
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    color: rgb(71, 45, 45);
+}
