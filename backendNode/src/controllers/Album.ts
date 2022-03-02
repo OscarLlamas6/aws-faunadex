@@ -29,7 +29,7 @@ export default class AlbumController {
                 { transaction: transaction }
             )
             await transaction.commit()
-            return res.status(201).send({ error: false, result: true, album: album });
+            return res.status(201).send({ error: false, message: 'Se creo album correctamente', result: album });
         } catch (error: any) {
             await transaction.rollback()
             return res.status(500).send({ error: true, message: error.message });
@@ -60,7 +60,7 @@ export default class AlbumController {
             })
 
             await transaction.commit()
-            return res.status(201).send({ error: false, message: 'Se actualizo usuario correctamente', result: true, album: album });
+            return res.status(201).send({ error: false, message: 'Se actualizo usuario correctamente', result: album });
         } catch (error: any) {
             await transaction.rollback()
             return res.status(500).send({ error: true, message: error.message });
@@ -114,20 +114,15 @@ export default class AlbumController {
         try {
             let params = req.params
 
-            let usuario: Usuario | null = await Usuario.findOne({
+            let albums: Album[] | null = await Album.findAll({
                 where: {
                     id: params.idUsuario,
                 },
-                include: [
-                    { model: Album }
-                ],
                 transaction: transaction
             })
 
-            if (!usuario || !usuario.albums) throw new Error('No se pudieron traer los albums');
-
             await transaction.commit()
-            return res.status(201).send({ error: false, message: 'Se encontró el album', result: usuario.albums });
+            return res.status(201).send({ error: false, message: 'Se encontró el album', result: albums });
         } catch (error: any) {
             await transaction.rollback()
             return res.status(500).send({ error: true, message: error.message });

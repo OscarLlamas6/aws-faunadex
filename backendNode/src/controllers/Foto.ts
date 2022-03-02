@@ -31,7 +31,7 @@ export default class FotoController {
                 { transaction: transaction }
             )
             await transaction.commit()
-            return res.status(201).send({ error: false, result: foto });
+            return res.status(201).send({ error: false, message: 'Se subió foto correctamente', result: foto });
         } catch (error: any) {
             await transaction.rollback()
             return res.status(500).send({ error: true, message: error.message });
@@ -43,17 +43,15 @@ export default class FotoController {
         try {
             let params = req.params
 
-            let album: Foto | null = await Foto.findOne({
+            let fotos: Foto[] | null = await Foto.findAll({
                 where: {
                     IdAlbum: params.idAlbum,
                 },
                 transaction: transaction
             })
 
-            if (!album) throw new Error('No se encontró el album');
-
             await transaction.commit()
-            return res.status(201).send({ error: false, message: 'Se encontró el album', result: album });
+            return res.status(201).send({ error: false, message: 'Se encontró el album', result: fotos });
         } catch (error: any) {
             await transaction.rollback()
             return res.status(500).send({ error: true, message: error.message });

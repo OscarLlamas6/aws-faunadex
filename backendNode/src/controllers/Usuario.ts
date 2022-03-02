@@ -47,7 +47,7 @@ export default class UsuarioController {
             usuario.password = ''
 
             await transaction.commit()
-            return res.status(201).send({ error: false, result: true, usuario: usuario });
+            return res.status(201).send({ error: false, message: 'Login exitoso', result: usuario });
         } catch (error: any) {
             await transaction.rollback()
             return res.status(500).send({ error: true, message: error.message });
@@ -70,7 +70,8 @@ export default class UsuarioController {
 
             let passEncryptada: string = passwordUtil.instance.encryptPassword(data.password)
 
-            let linkFotoS3 = await AwsService.instance.uploadFoto(data.linkFotoPerfil)
+            let linkFotoS3;
+            if (data.linkFotoPerfil) linkFotoS3 = await AwsService.instance.uploadFoto(data.linkFotoPerfil)
 
             console.log('LINK')
             console.log(linkFotoS3)
@@ -79,12 +80,12 @@ export default class UsuarioController {
                 userName: data.userName,
                 nombre: data.nombre,
                 password: passEncryptada,
-                linkFotoPerfil: linkFotoS3.Location
+                linkFotoPerfil: linkFotoS3.Location ? linkFotoS3.Location : ''
             },
                 { transaction: transaction }
             )
             await transaction.commit()
-            return res.status(201).send({ error: false, result: true, usuario: usuario });
+            return res.status(201).send({ error: false, mensaje: 'Registro exitoso', result: true });
         } catch (error: any) {
             await transaction.rollback()
             return res.status(500).send({ error: true, message: error.message });
@@ -133,7 +134,7 @@ export default class UsuarioController {
             })
 
             await transaction.commit()
-            return res.status(201).send({ error: false, message: 'Se actualizo usuario correctamente', result: true, usuario: usuario });
+            return res.status(201).send({ error: false, message: 'Se actualizo usuario correctamente', result: usuario });
         } catch (error: any) {
             await transaction.rollback()
             return res.status(500).send({ error: true, message: error.message });
