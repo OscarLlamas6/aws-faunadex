@@ -1,17 +1,45 @@
 import React, {Component} from "react";
 import "../css/style.css"
 import {Button,Form} from "react-bootstrap";
-import Cookies from "universal-cookie"
+import http from '../libs/http'
 
-const cookies =new Cookies();
+var reader = new FileReader();
 
 class EditProfile extends Component {
+    state = {
+        user: "",
+        name: "",
+        picture: "",
+        password: ""
+    }
 
     componentDidMount(){
-        if (!cookies.get("iduser")) {
+        if (!window.localStorage.getItem("iduser")) {
             window.location.href="./"
         }
-        console.log(cookies.get("iduser"))
+    }
+
+    handleChange=async e=>{
+        await this.setState({
+            ...this.state,[e.target.name]: e.target.value
+        });
+    }
+
+    handleImage = async e => {
+        reader = new FileReader();
+        reader.readAsDataURL(e.target.files[0]);
+        reader.onload = function () {
+            //BASE 64
+            //console.log(reader.result);
+        };
+    }
+
+    EditUser=async()=>{
+        if (this.state.password === window.localStorage.getItem("password")) {
+            
+        } else {
+            alert("Contraseña incorrecta")
+        }
     }
 
     render() {
@@ -22,16 +50,16 @@ class EditProfile extends Component {
                 <Form>
                     <Form.Group>
                         <Form.Label>Usuario: </Form.Label>
-                        <Form.Control type="text" placeholder="Usuario" />
+                        <Form.Control type="text" placeholder="Usuario" name="user" onChange={this.handleChange}/>
                         <Form.Label>Nombre Completo: </Form.Label>
-                        <Form.Control type="text" placeholder="Nombre Completo" />
+                        <Form.Control type="text" placeholder="Nombre" name="name" onChange={this.handleChange}/>
                         <Form.Label>Elegir Foto</Form.Label>
-                        <Form.Control type="file" />
+                        <Form.Control type="file" onChange={this.handleImage} accept=".jpg,.png"/>
                         <Form.Label>Password: </Form.Label>
-                        <Form.Control type="password" placeholder="Password" />
+                        <Form.Control type="password" placeholder="Password" name="password" onChange={this.handleChange}/>
                     </Form.Group>
                     <br/>
-                    <Button variant="primary">Guardar</Button>
+                    <Button variant="primary" onClick={()=>this.EditUser()}>Guardar</Button>
                     <br/>
                     <br/>
                     <Button variant="primary" href="/home">Regresar</Button>
