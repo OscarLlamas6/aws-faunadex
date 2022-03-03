@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import controller from '../controllers/Foto'
 
-export const Album = Router();
+export const Foto = Router();
 
-Album.post('/subirFoto', function (req, res) { // TODO: Seguridad de endpoint
+Foto.post('/subirFoto', function (req, res) { // TODO: Seguridad de endpoint
     controller.instance.createFoto(req, res)
 });
 
-Album.get('/getFotos/:idAlbum', function (req, res) { // TODO: Seguridad de endpoint
+Foto.get('/getFotos/:idAlbum', function (req, res) { // TODO: Seguridad de endpoint
     controller.instance.getFotos(req, res)
 });

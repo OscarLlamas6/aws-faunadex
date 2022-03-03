@@ -21,15 +21,7 @@ class UsuarioController {
         this.getUsuarios = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 let result = {
-                    nombre: "Análisis y Diseño 1",
-                    website: [
-                        "José - 201709309  - Practica1 - Grupo1",
-                        "Julio - 201801677 - Practica1 - Grupo1",
-                        "Cristian - 201801397 - Practica1 - Grupo1",
-                        "Estanley - 201700319- Practica1 - Grupo1",
-                        "Juan de Dios - 201603041 - Práctica1 - Grupo1",
-                        "Daniel - 201612443 - Práctica1 - Grupo1",
-                    ],
+                    nombre: "Seminario",
                 };
                 return res.status(201).send({ error: false, result: result });
             }
@@ -56,7 +48,7 @@ class UsuarioController {
                     throw new Error('Contraseña incorrecta');
                 usuario.password = '';
                 yield transaction.commit();
-                return res.status(201).send({ error: false, result: true, usuario: usuario });
+                return res.status(201).send({ error: false, message: 'Login exitoso', result: usuario });
             }
             catch (error) {
                 yield transaction.rollback();
@@ -78,17 +70,19 @@ class UsuarioController {
                 if (usuarioEncontrado)
                     throw new Error('Este username ya existe');
                 let passEncryptada = passwordUtil_1.default.instance.encryptPassword(data.password);
-                let linkFotoS3 = yield awsService_1.default.instance.uploadFoto(data.linkFotoPerfil);
+                let linkFotoS3;
+                if (data.linkFotoPerfil)
+                    linkFotoS3 = yield awsService_1.default.instance.uploadFoto(data.linkFotoPerfil);
                 console.log('LINK');
                 console.log(linkFotoS3);
                 const usuario = yield Usuario_1.Usuario.create({
                     userName: data.userName,
                     nombre: data.nombre,
                     password: passEncryptada,
-                    linkFotoPerfil: linkFotoS3.Location
+                    linkFotoPerfil: linkFotoS3.Location ? linkFotoS3.Location : ''
                 }, { transaction: transaction });
                 yield transaction.commit();
-                return res.status(201).send({ error: false, result: true, usuario: usuario });
+                return res.status(201).send({ error: false, mensaje: 'Registro exitoso', result: true });
             }
             catch (error) {
                 yield transaction.rollback();
@@ -131,7 +125,7 @@ class UsuarioController {
                     transaction: transaction
                 });
                 yield transaction.commit();
-                return res.status(201).send({ error: false, message: 'Se actualizo usuario correctamente', result: true, usuario: usuario });
+                return res.status(201).send({ error: false, message: 'Se actualizo usuario correctamente', result: usuario });
             }
             catch (error) {
                 yield transaction.rollback();

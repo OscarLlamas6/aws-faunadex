@@ -1,10 +1,11 @@
-import React, {Component} from "react";
+import React, { Component } from "react";
 import "../css/style.css"
-import {Button,Form,Alert} from "react-bootstrap";
+import { Button, Form, Alert } from "react-bootstrap";
 //import axios from "axios";
 import Cookies from "universal-cookie"
+import http from '../libs/http'
 
-const cookies =new Cookies();
+const cookies = new Cookies();
 
 
 class Login extends Component {
@@ -13,17 +14,20 @@ class Login extends Component {
         password: ""
     }
 
-    handleChange=async e=>{
+    handleChange = async e => {
         await this.setState({
-            ...this.state,[e.target.name]: e.target.value
+            ...this.state, [e.target.name]: e.target.value
         });
         console.log(this.state.user)
     }
 
-    Login=async()=>{
-        cookies.set("iduser",1, {path: "/"})
-        alert('Bienvenido user');
-        window.location.href="./home"
+    Login = async () => {
+        // cookies.set("iduser",1, {path: "/"})
+        // alert('Bienvenido user');
+        // window.location.href="./home"
+
+        let req = await http.get('http://localhost:4000/usuario/')
+        console.log(req)
         /*await axios.post("http://localhost:4000/login",  {
             userName: this.state.user,
             password: this.state.password
@@ -47,19 +51,19 @@ class Login extends Component {
                 <Form>
                     <Form.Group>
                         <Form.Label>Usuario: </Form.Label>
-                        <Form.Control type="text" placeholder="Usuario" name="user" onChange={this.handleChange}/>
+                        <Form.Control type="text" placeholder="Usuario" name="user" onChange={this.handleChange} />
                     </Form.Group>
                     <Form.Group>
                         <Form.Label>Password: </Form.Label>
-                        <Form.Control type="password" placeholder="Password" name="password" onChange={this.handleChange}/>
+                        <Form.Control type="password" placeholder="Password" name="password" onChange={this.handleChange} />
                     </Form.Group>
-                    <br/>
-                    <Button type="button" variant="primary" onClick={()=>this.Login()}>Ingresar</Button>
-                    <br/>
-                    <br/>
+                    <br />
+                    <Button type="button" variant="primary" onClick={() => this.Login()}>Ingresar</Button>
+                    <br />
+                    <br />
                     <Alert variant="light">No tienes cuenta? <Alert.Link href="/Register">Registrarse</Alert.Link></Alert>
                 </Form>
-            </div> 
+            </div>
         )
     }
 }

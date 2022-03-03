@@ -37,7 +37,7 @@ class FotoController {
                     link: linkFotoS3
                 }, { transaction: transaction });
                 yield transaction.commit();
-                return res.status(201).send({ error: false, result: foto });
+                return res.status(201).send({ error: false, message: 'Se subió foto correctamente', result: foto });
             }
             catch (error) {
                 yield transaction.rollback();
@@ -50,16 +50,14 @@ class FotoController {
             let transaction = yield sequalize_1.sequelize.transaction();
             try {
                 let params = req.params;
-                let album = yield Foto_1.Foto.findOne({
+                let fotos = yield Foto_1.Foto.findAll({
                     where: {
                         IdAlbum: params.idAlbum,
                     },
                     transaction: transaction
                 });
-                if (!album)
-                    throw new Error('No se encontró el album');
                 yield transaction.commit();
-                return res.status(201).send({ error: false, message: 'Se encontró el album', result: album });
+                return res.status(201).send({ error: false, message: 'Se encontró el album', result: fotos });
             }
             catch (error) {
                 yield transaction.rollback();

@@ -11,7 +11,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequalize_1 = require("../sequalize");
 const Album_1 = require("../models/Album");
-const Usuario_1 = require("../models/Usuario");
 class AlbumController {
     createAlbum(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -32,7 +31,7 @@ class AlbumController {
                     IdUsuario: data.idUsuario
                 }, { transaction: transaction });
                 yield transaction.commit();
-                return res.status(201).send({ error: false, result: true, album: album });
+                return res.status(201).send({ error: false, message: 'Se creo album correctamente', result: album });
             }
             catch (error) {
                 yield transaction.rollback();
@@ -60,7 +59,7 @@ class AlbumController {
                     transaction: transaction
                 });
                 yield transaction.commit();
-                return res.status(201).send({ error: false, message: 'Se actualizo usuario correctamente', result: true, album: album });
+                return res.status(201).send({ error: false, message: 'Se actualizo usuario correctamente', result: album });
             }
             catch (error) {
                 yield transaction.rollback();
@@ -115,19 +114,14 @@ class AlbumController {
             let transaction = yield sequalize_1.sequelize.transaction();
             try {
                 let params = req.params;
-                let usuario = yield Usuario_1.Usuario.findOne({
+                let albums = yield Album_1.Album.findAll({
                     where: {
                         id: params.idUsuario,
                     },
-                    include: [
-                        { model: Album_1.Album }
-                    ],
                     transaction: transaction
                 });
-                if (!usuario || !usuario.albums)
-                    throw new Error('No se pudieron traer los albums');
                 yield transaction.commit();
-                return res.status(201).send({ error: false, message: 'Se encontró el album', result: usuario.albums });
+                return res.status(201).send({ error: false, message: 'Se encontró el album', result: albums });
             }
             catch (error) {
                 yield transaction.rollback();

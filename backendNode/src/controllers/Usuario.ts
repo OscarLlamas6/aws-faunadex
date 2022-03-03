@@ -10,15 +10,7 @@ export default class UsuarioController {
     getUsuarios = async (req: any, res: any) => {
         try {
             let result = {
-                nombre: "Análisis y Diseño 1",
-                website: [
-                    "José - 201709309  - Practica1 - Grupo1",
-                    "Julio - 201801677 - Practica1 - Grupo1",
-                    "Cristian - 201801397 - Practica1 - Grupo1",
-                    "Estanley - 201700319- Practica1 - Grupo1",
-                    "Juan de Dios - 201603041 - Práctica1 - Grupo1",
-                    "Daniel - 201612443 - Práctica1 - Grupo1",
-                ],
+                nombre: "Seminario",
             }
             return res.status(201).send({ error: false, result: result });
         } catch (error: any) {
