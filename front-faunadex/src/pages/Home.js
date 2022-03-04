@@ -1,22 +1,28 @@
 import React, {Component} from "react";
 import "../css/style.css"
 import {Button,Card,ListGroup} from "react-bootstrap";
-import Cookies from "universal-cookie"
-
-const cookies =new Cookies();
 
 class Home extends Component {
+    state = {
+        user: "",
+        name: "",
+        profilepic: "",
+    }
 
     logout() {
-        cookies.remove("iduser", {path: "/"})
+        window.localStorage.clear()
         window.location.href="./"
     }
 
     componentDidMount(){
-        if (!cookies.get("iduser")) {
+        if (! window.localStorage.getItem("iduser")) {
             window.location.href="./"
         }
-        console.log(cookies.get("iduser"))
+        this.setState({
+            user: window.localStorage.getItem("username"),
+            name: window.localStorage.getItem("nombre"),
+            profilepic: window.localStorage.getItem("pfp")
+        })
     }
 
     render() {
@@ -25,12 +31,12 @@ class Home extends Component {
                 <h2>Pagina de Inicio</h2>
                 <div>
                 <Card>
-                    <Card.Img variant="top" src="" />
                     <Card.Body>
+                        <img src={this.state.profilepic} alt="Imagen de Perfil" width="30%" height="30%" />
                         <Card.Title>Datos Personales</Card.Title>
                         <ListGroup variant="flush">
-                            <ListGroup.Item>Usuario: </ListGroup.Item>
-                            <ListGroup.Item>Nombre Completo: </ListGroup.Item>
+                            <ListGroup.Item>Usuario: {this.state.user}</ListGroup.Item>
+                            <ListGroup.Item>Nombre Completo: {this.state.name}</ListGroup.Item>
                             <ListGroup.Item>
                                 <Button variant="primary" href="/editprofile">Editar Perfil</Button>
                                 <Button variant="primary" href="/editalbum">Editar Album</Button>
