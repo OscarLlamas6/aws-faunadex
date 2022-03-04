@@ -1,6 +1,5 @@
 import { sequelize } from '../sequalize'
 import { Album } from '../models/Album'
-import { Usuario } from '../models/Usuario'
 
 export default class AlbumController {
 

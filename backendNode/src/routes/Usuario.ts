@@ -18,3 +18,7 @@ Usuario.post('/registro', function (req, res) { // TODO: Seguridad de endpoint
 Usuario.put('/updateUsuario', function (req, res) { // TODO: Seguridad de endpoint
     controller.instance.updateUser(req, res)
 });
+
+Usuario.put('/updateFotoPerfil', function (req, res) { // TODO: Seguridad de endpoint
+    controller.instance.updateFotoPerfil(req, res)
+});

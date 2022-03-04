@@ -26,7 +26,7 @@ export default class FotoController {
             const foto: Foto = await Foto.create({
                 nombre: data.nombre,
                 IdAlbum: data.idAlbum,
-                link: linkFotoS3
+                link: linkFotoS3.Location ? linkFotoS3.Location : ''
             },
                 { transaction: transaction }
             )
