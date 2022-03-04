@@ -34,7 +34,7 @@ class FotoController {
                 const foto = yield Foto_1.Foto.create({
                     nombre: data.nombre,
                     IdAlbum: data.idAlbum,
-                    link: linkFotoS3
+                    link: linkFotoS3.Location ? linkFotoS3.Location : ''
                 }, { transaction: transaction });
                 yield transaction.commit();
                 return res.status(201).send({ error: false, message: 'Se subió foto correctamente', result: foto });

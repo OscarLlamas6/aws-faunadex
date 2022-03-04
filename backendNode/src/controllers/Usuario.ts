@@ -2,6 +2,8 @@ import { sequelize } from '../sequalize'
 import { Usuario } from '../models/Usuario'
 import AwsService from '../services/awsService'
 import passwordUtil from '../utils/passwordUtil'
+import { Album } from '../models/Album'
+import { Foto } from '../models/Foto'
 
 export default class UsuarioController {
 
@@ -65,9 +67,6 @@ export default class UsuarioController {
             let linkFotoS3;
             if (data.linkFotoPerfil) linkFotoS3 = await AwsService.instance.uploadFoto(data.linkFotoPerfil)
 
-            console.log('LINK')
-            console.log(linkFotoS3)
-
             const usuario: Usuario = await Usuario.create({
                 userName: data.userName,
                 nombre: data.nombre,
@@ -76,6 +75,24 @@ export default class UsuarioController {
             },
                 { transaction: transaction }
             )
+
+            //Se crea el album 'FotosPerfil' por default al crearse el usuario
+            const album: Album = await Album.create({
+                nombre: 'FotosPerfil',
+                IdUsuario: data.idUsuario
+            },
+                { transaction: transaction }
+            )
+
+            //Se crea foto que ira en el album de fotos de perfil del usuario
+            const foto: Foto = await Foto.create({
+                nombre: '',
+                IdAlbum: album.id,
+                link: linkFotoS3.Location ? linkFotoS3.Location : ''
+            },
+                { transaction: transaction }
+            )
+
             await transaction.commit()
             return res.status(201).send({ error: false, mensaje: 'Registro exitoso', result: true });
         } catch (error: any) {
@@ -127,6 +144,51 @@ export default class UsuarioController {
 
             await transaction.commit()
             return res.status(201).send({ error: false, message: 'Se actualizo usuario correctamente', result: usuario });
+        } catch (error: any) {
+            await transaction.rollback()
+            return res.status(500).send({ error: true, message: error.message });
+        }
+    }
+
+    async updateFotoPerfil(req: any, res: any) {
+        let transaction = await sequelize.transaction()
+        try {
+            let data = req.body
+
+            let linkFotoS3;
+            if (data.linkFotoPerfil) linkFotoS3 = await AwsService.instance.uploadFoto(data.linkFotoPerfil)
+
+            await Usuario.update({
+                linkFotoPerfil: linkFotoS3.Location ? linkFotoS3.Location : ''
+            },
+                {
+                    where: {
+                        id: data.usuarioId,
+                    },
+                    transaction: transaction
+                }
+            )
+
+            const albumEncontrado: Album | null = await Album.findOne({
+                where: {
+                    nombre: 'FotosPerfil',
+                    IdUsuario: data.usuarioId
+                },
+                transaction: transaction
+            })
+
+            if(!albumEncontrado)throw new Error("No se encontró album de fotos de perfil");
+            
+            const foto: Foto = await Foto.create({
+                nombre: '',
+                IdAlbum: albumEncontrado.id,
+                link: linkFotoS3.Location ? linkFotoS3.Location : ''
+            },
+                { transaction: transaction }
+            )
+
+            await transaction.commit()
+            return res.status(201).send({ error: false, message: 'Se actualizo usuario correctamente', result: linkFotoS3.Location });
         } catch (error: any) {
             await transaction.rollback()
             return res.status(500).send({ error: true, message: error.message });

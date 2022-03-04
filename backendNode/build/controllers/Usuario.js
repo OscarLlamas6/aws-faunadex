@@ -16,6 +16,8 @@ const sequalize_1 = require("../sequalize");
 const Usuario_1 = require("../models/Usuario");
 const awsService_1 = __importDefault(require("../services/awsService"));
 const passwordUtil_1 = __importDefault(require("../utils/passwordUtil"));
+const Album_1 = require("../models/Album");
+const Foto_1 = require("../models/Foto");
 class UsuarioController {
     constructor() {
         this.getUsuarios = (req, res) => __awaiter(this, void 0, void 0, function* () {
@@ -73,13 +75,22 @@ class UsuarioController {
                 let linkFotoS3;
                 if (data.linkFotoPerfil)
                     linkFotoS3 = yield awsService_1.default.instance.uploadFoto(data.linkFotoPerfil);
-                console.log('LINK');
-                console.log(linkFotoS3);
                 const usuario = yield Usuario_1.Usuario.create({
                     userName: data.userName,
                     nombre: data.nombre,
                     password: passEncryptada,
                     linkFotoPerfil: linkFotoS3.Location ? linkFotoS3.Location : ''
+                }, { transaction: transaction });
+                //Se crea el album 'FotosPerfil' por default al crearse el usuario
+                const album = yield Album_1.Album.create({
+                    nombre: 'FotosPerfil',
+                    IdUsuario: data.idUsuario
+                }, { transaction: transaction });
+                //Se crea foto que ira en el album de fotos de perfil del usuario
+                const foto = yield Foto_1.Foto.create({
+                    nombre: '',
+                    IdAlbum: album.id,
+                    link: linkFotoS3.Location ? linkFotoS3.Location : ''
                 }, { transaction: transaction });
                 yield transaction.commit();
                 return res.status(201).send({ error: false, mensaje: 'Registro exitoso', result: true });
@@ -126,6 +137,45 @@ class UsuarioController {
                 });
                 yield transaction.commit();
                 return res.status(201).send({ error: false, message: 'Se actualizo usuario correctamente', result: usuario });
+            }
+            catch (error) {
+                yield transaction.rollback();
+                return res.status(500).send({ error: true, message: error.message });
+            }
+        });
+    }
+    updateFotoPerfil(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let transaction = yield sequalize_1.sequelize.transaction();
+            try {
+                let data = req.body;
+                let linkFotoS3;
+                if (data.linkFotoPerfil)
+                    linkFotoS3 = yield awsService_1.default.instance.uploadFoto(data.linkFotoPerfil);
+                yield Usuario_1.Usuario.update({
+                    linkFotoPerfil: linkFotoS3.Location ? linkFotoS3.Location : ''
+                }, {
+                    where: {
+                        id: data.usuarioId,
+                    },
+                    transaction: transaction
+                });
+                const albumEncontrado = yield Album_1.Album.findOne({
+                    where: {
+                        nombre: 'FotosPerfil',
+                        IdUsuario: data.usuarioId
+                    },
+                    transaction: transaction
+                });
+                if (!albumEncontrado)
+                    throw new Error("No se encontró album de fotos de perfil");
+                const foto = yield Foto_1.Foto.create({
+                    nombre: '',
+                    IdAlbum: albumEncontrado.id,
+                    link: linkFotoS3.Location ? linkFotoS3.Location : ''
+                }, { transaction: transaction });
+                yield transaction.commit();
+                return res.status(201).send({ error: false, message: 'Se actualizo usuario correctamente', result: linkFotoS3.Location });
             }
             catch (error) {
                 yield transaction.rollback();
