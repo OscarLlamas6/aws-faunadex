@@ -1,43 +1,45 @@
 import React, {Component} from "react";
 import "../css/style.css"
 import {Button,Form,Alert} from "react-bootstrap";
-//import axios from "axios";
-import Cookies from "universal-cookie"
-
-const cookies =new Cookies();
-
+import http from '../libs/http'
 
 class Login extends Component {
     state = {
         user: "",
-        password: ""
+        password: "",
+        iduser: ""
     }
 
     handleChange=async e=>{
         await this.setState({
             ...this.state,[e.target.name]: e.target.value
         });
-        console.log(this.state.user)
     }
 
     Login=async()=>{
-        cookies.set("iduser",1, {path: "/"})
-        alert('Bienvenido user');
-        window.location.href="./home"
-        /*await axios.post("http://localhost:4000/login",  {
+        let req = await http.post('http://localhost:4000/usuario/login',{
             userName: this.state.user,
             password: this.state.password
         })
-        .then(response => {
-            if (response.data[0] === true) {
-                alert("Datos correctos");
-            } else {
-                alert("Datos incorrectos");
-            }
-        })
-        .catch(error =>{
-            console.log(error)
-        })*/
+        if (req.error === false) {
+            alert("Ingreso exitoso")
+            this.setState({
+                iduser: req.result.id
+            })
+            console.log(req.result)
+            window.localStorage.setItem('iduser', this.state.iduser)
+            window.localStorage.setItem("pfp",req.result.linkFotoPerfil)
+            window.localStorage.setItem("nombre",req.result.nombre)
+            window.localStorage.setItem("username",req.result.userName)
+            window.localStorage.setItem("password",this.state.password)
+            window.location.href="./home"
+        } else {
+            alert("Datos incorrectos")
+        }
+    }
+
+    componentDidMount(){
+        window.localStorage.clear()
     }
 
     render() {
