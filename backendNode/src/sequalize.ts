@@ -1,7 +1,9 @@
-import { Sequelize } from 'sequelize-typescript';
+//import { Sequelize } from 'sequelize-typescript';
+
+import { Sequelize } from 'sequelize-typescript'
 
 let username = process.env.DB_USER || 'root'
-let password = process.env.DB_PASSWORD || '123456'
+let password = process.env.DB_PASSWORD || 'Campos1100#'
 let host = process.env.DB_HOST || 'localhost'
 let database = process.env.DB_DATABASE || 'semi1practica1'
 
