@@ -87,6 +87,17 @@ def registrar():
         sql = "INSERT INTO semi1practica1.Usuario (userName, nombre, password, linkFotoPerfil) VALUES (%s, %s, %s, %s)"
         val = (userName, nombre, encryptedPass, dirURL)
         mycursor.execute(sql, val)
+        
+        idUsuario = str(mycursor.lastrowid)
+        sql2 = "INSERT INTO semi1practica1.Album (nombre, idUsuario) VALUES (%s, %s)"
+        val2 = ("FotosPerfil", idUsuario)
+        mycursor.execute(sql2, val2)
+        
+        idAlbum = str(mycursor.lastrowid)
+        sql3 = "INSERT INTO semi1practica1.Foto (nombre, link, idAlbum) VALUES (%s, %s, %s)"
+        val3 = (str(idUsuario)+"-"+idUnico, dirURL, idAlbum)
+        mycursor.execute(sql3, val3)
+        
         mydb.commit()
 
         return jsonify({
@@ -159,12 +170,11 @@ def update():
         userName=respuesta['userName']
         nombre=respuesta['nombre']
         password=respuesta['password']
-        linkFoto = respuesta['linkFoto']
         encryptedPass = hashlib.md5(password.encode('utf-8')).hexdigest()
         
         mycursor = mydb.cursor()
-        sql = "UPDATE semi1practica1.Usuario SET userName = %s, nombre = %s, password = %s, linkFotoPerfil = %s WHERE idUsuario = %s"
-        val = (userName, nombre, encryptedPass, linkFoto, idUsuario)
+        sql = "UPDATE semi1practica1.Usuario SET userName = %s, nombre = %s, password = %s WHERE idUsuario = %s"
+        val = (userName, nombre, encryptedPass, idUsuario)
         mycursor.execute(sql, val)
         
         mydb.commit()
@@ -200,6 +210,68 @@ def update():
             "error": True,
             "message": "Error al actualizar usuario"
             }), 400            
+      
+      
+@app.route('/updateFotoPerfil', methods=['PUT']) 
+@cross_origin(supports_credentials=True)
+def updateFotoPerfil():
+    
+    try:
+        #leyendo json
+        respuesta = request.get_json()
+        idUsuario=respuesta['usuarioId']
+        imgStr = respuesta['linkFotoPerfil']
+        
+        #creamos su idUnico
+        idUnico=str(uuid.uuid4())
+
+        #convierto a b64
+        imageb64 = base64.b64decode(imgStr)
+
+        #parametros S3
+        paramS3 = {
+            'ContentType':'image/jpg'
+        }
+        dirURL ='http://' + BUCKET_NAME + '.s3.' + AWS_REGION + '.amazonaws.com/Fotos_Perfil/'+idUnico+'.jpg'
+        pathFoto="Fotos_Perfil/"+idUnico+'.jpg'
+        nbucket = s3.Bucket(BUCKET_NAME)
+        nbucket.upload_fileobj(io.BytesIO(imageb64),pathFoto,paramS3)
+        
+        mycursor = mydb.cursor()
+        sql = "SELECT * FROM semi1practica1.Album WHERE nombre = %s AND idUsuario = %s"
+        val = ("FotosPerfil", idUsuario)
+        mycursor.execute(sql, val)
+        # Fetch one record and return result
+        myAlbum = mycursor.fetchone()
+        
+        if myAlbum: 
+            
+            idAlbum = myAlbum[0]
+            mycursor = mydb.cursor()
+            sql2 = "INSERT INTO semi1practica1.Foto (nombre, link, idAlbum) VALUES (%s, %s, %s)"
+            val2 = (str(idUsuario)+"-"+idUnico, dirURL, idAlbum)
+            mycursor.execute(sql2, val2)
+            mydb.commit()       
+       
+            return jsonify({
+                "result": dirURL,
+                "error": False,
+                "message": "Foto de perfil actualizada correctamente"
+                }), 201
+        else:
+    
+            return jsonify({
+            "result": "",
+            "error": True,
+            "message": "Error al actualizar foto de perfil"
+            }), 400      
+            
+    except:
+        return jsonify({
+            "result": "",
+            "error": True,
+            "message": "Error al actualizar foto de perfil"
+            }), 400    
          
 @app.route('/getUsuario/<id>', methods=['GET']) 
 @cross_origin(supports_credentials=True)
