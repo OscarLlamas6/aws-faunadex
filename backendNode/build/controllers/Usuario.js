@@ -121,8 +121,7 @@ class UsuarioController {
                 yield Usuario_1.Usuario.update({
                     userName: data.userName,
                     nombre: data.nombre,
-                    password: passEncryptada,
-                    linkFotoPerfil: data.linkFotoPerfil
+                    password: passEncryptada
                 }, {
                     where: {
                         id: data.usuarioId,

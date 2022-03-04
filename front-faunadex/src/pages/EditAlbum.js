@@ -1,17 +1,39 @@
 import React, {Component} from "react";
 import "../css/style.css"
 import {Button,Form} from "react-bootstrap";
-import Cookies from "universal-cookie"
-
-const cookies =new Cookies();
+import http from '../libs/http'
 
 class EditAlbum extends Component {
 
+    state = {
+        user: "",
+        name: ""
+    }
+
     componentDidMount(){
-        if (!cookies.get("iduser")) {
+        if (!window.localStorage.getItem("iduser")) {
             window.location.href="./"
         }
-        console.log(cookies.get("iduser"))
+    }
+
+    handleChange=async e=>{
+        await this.setState({
+            ...this.state,[e.target.name]: e.target.value
+        });
+    }
+
+    createAlbum = async()=>{
+        let userid = window.localStorage.getItem("iduser");
+        let req = await http.post('http://localhost:4000/album/crearAlbum',{
+                nombre: this.state.name,
+                idUsuario: userid
+            })
+            if (req.error) {
+                alert("Error al crear album")
+            } else {
+                alert("Album creado correctamente")
+            }
+            console.log(req)
     }
 
     render() {
@@ -26,15 +48,15 @@ class EditAlbum extends Component {
                             <option value="album1">Album 1</option>
                         </Form.Control>
                         <Form.Label>Nombre: </Form.Label>
-                        <Form.Control type="text" placeholder="Nombre" />
+                        <Form.Control type="text" placeholder="Nombre" name="name" onChange={this.handleChange}/>
                         <Form.Label>
                             <Button variant="primary">Guardar</Button>
                             <Button variant="danger">Eliminar</Button>
                         </Form.Label>
                         <h2>Nuevo Album</h2>
                         <Form.Label>Nombre: </Form.Label>
-                        <Form.Control type="text" placeholder="Nombre" />
-                        <Button variant="primary">Crear</Button>
+                        <Form.Control type="text" placeholder="Nombre" name="name" onChange={this.handleChange}/>
+                        <Button variant="primary" onClick={()=>this.createAlbum()}>Crear</Button>
                     </Form.Group>
                     <br/>
                     <Button variant="primary" href="/home">Regresar</Button>

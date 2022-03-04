@@ -8,10 +8,9 @@ const cookies =new Cookies();
 class UploadPic extends Component {
 
     componentDidMount(){
-        if (!cookies.get("iduser")) {
+        if (!window.localStorage.getItem("iduser")) {
             window.location.href="./"
         }
-        console.log(cookies.get("iduser"))
     }
 
     render() {
