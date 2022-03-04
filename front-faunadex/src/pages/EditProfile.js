@@ -36,7 +36,16 @@ class EditProfile extends Component {
 
     EditUser=async()=>{
         if (this.state.password === window.localStorage.getItem("password")) {
-            
+            let userid = window.localStorage.getItem("iduser");
+             console.log(window.localStorage.getItem("iduser"),this.state.user,this.state.name,this.state.password,reader.result.split(",")[1]);
+            // let req = await http.put('http://localhost:4000/usuario/updateUsuario',{
+            //     usuarioId: userid,
+            //     userName: this.state.user,
+            //     nombre: this.state.name,
+            //     password: this.state.password,
+            //     linkFotoPerfil: reader.result.split(",")[1]
+            // })
+            // console.log(req)
         } else {
             alert("Contraseña incorrecta")
         }
