@@ -124,8 +124,7 @@ export default class UsuarioController {
             await Usuario.update({
                 userName: data.userName,
                 nombre: data.nombre,
-                password: passEncryptada,
-                linkFotoPerfil: data.linkFotoPerfil
+                password: passEncryptada
             },
                 {
                     where: {
