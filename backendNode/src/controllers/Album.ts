@@ -1,5 +1,7 @@
 import { sequelize } from '../sequalize'
 import { Album } from '../models/Album'
+import { Op } from 'sequelize';
+import { Foto } from '../models/Foto'
 
 export default class AlbumController {
 
@@ -115,8 +117,14 @@ export default class AlbumController {
 
             let albums: Album[] | null = await Album.findAll({
                 where: {
-                    id: params.idUsuario,
+                    IdUsuario: params.idUsuario,
+                    nombre: {
+                        [Op.ne]: 'FotosPerfil'
+                    }
                 },
+                include: [
+                    { model: Foto }
+                ],
                 transaction: transaction
             })
 

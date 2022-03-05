@@ -4,6 +4,7 @@ import AwsService from '../services/awsService'
 import passwordUtil from '../utils/passwordUtil'
 import { Album } from '../models/Album'
 import { Foto } from '../models/Foto'
+import {  Op } from 'sequelize';
 
 export default class UsuarioController {
 
@@ -79,7 +80,7 @@ export default class UsuarioController {
             //Se crea el album 'FotosPerfil' por default al crearse el usuario
             const album: Album = await Album.create({
                 nombre: 'FotosPerfil',
-                IdUsuario: data.idUsuario
+                IdUsuario: usuario.id
             },
                 { transaction: transaction }
             )
@@ -108,23 +109,21 @@ export default class UsuarioController {
 
             let usuario: Usuario | null = await Usuario.findOne({
                 where: {
-                    id: data.usuarioId,
+                    id: {
+                        [Op.ne]: data.usuarioId,
+                    },
+                    userName: {
+                        [Op.eq]: data.userName
+                    }
                 },
                 transaction: transaction
             })
 
-            if (!usuario) throw new Error('Este usuario aun no esta registrado');
-
-            let matchPasword: boolean = passwordUtil.instance.comparePassword(data.password, usuario.password)
-
-            if (!matchPasword) throw new Error('Contraseña incorrecta');
-
-            let passEncryptada: string = passwordUtil.instance.encryptPassword(data.password)
+            if (usuario) throw new Error('Este username ya esta siendo utilizado');
 
             await Usuario.update({
                 userName: data.userName,
-                nombre: data.nombre,
-                password: passEncryptada
+                nombre: data.nombre
             },
                 {
                     where: {

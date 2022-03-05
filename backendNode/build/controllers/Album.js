@@ -11,6 +11,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequalize_1 = require("../sequalize");
 const Album_1 = require("../models/Album");
+const sequelize_1 = require("sequelize");
+const Foto_1 = require("../models/Foto");
 class AlbumController {
     createAlbum(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -116,8 +118,14 @@ class AlbumController {
                 let params = req.params;
                 let albums = yield Album_1.Album.findAll({
                     where: {
-                        id: params.idUsuario,
+                        IdUsuario: params.idUsuario,
+                        nombre: {
+                            [sequelize_1.Op.ne]: 'FotosPerfil'
+                        }
                     },
+                    include: [
+                        { model: Foto_1.Foto }
+                    ],
                     transaction: transaction
                 });
                 yield transaction.commit();

@@ -1,10 +1,12 @@
 import { Model, Column, Table, CreatedAt, UpdatedAt, DataType, HasMany, ForeignKey, BelongsTo } from "sequelize-typescript";
 import { Usuario } from './Usuario'
+import { Foto } from './Foto'
 
 interface Attributes {
     id?: number;
     nombre: string;
     IdUsuario: number;
+    Fotos?: Foto[]
 }
 
 @Table({
@@ -33,4 +35,8 @@ export class Album extends Model<Album, Attributes> {
 
     @BelongsTo(() => Usuario)
     usuario?: Usuario;
+
+    // Fotos
+    @HasMany(() => Foto)
+    Fotos?: Foto[];
 }
