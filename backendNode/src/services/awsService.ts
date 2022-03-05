@@ -12,13 +12,13 @@ export default class AwsService {
 
     static instance = new AwsService()
 
-    uploadFoto = async (foto: any, ext = '.jpg') => {
+    uploadFoto = async (foto: any, esPerfil: boolean) => {
 
         let buff = Buffer.from(foto, 'base64')
 
         let id = uuidv4()
 
-        let name = id + ext
+        let name = esPerfil ? 'Fotos_Perfil/' + id + '.jpg' : 'Fotos_Publicadas/' + id + '.jpg'
 
         // Setting up S3 upload parameters
         const params = {

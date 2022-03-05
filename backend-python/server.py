@@ -2,7 +2,6 @@
 import boto3
 import base64 
 import uuid
-import tinys3
 import io
 import os
 #Flask y Config

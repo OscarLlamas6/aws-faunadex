@@ -75,7 +75,7 @@ class UsuarioController {
                 let passEncryptada = passwordUtil_1.default.instance.encryptPassword(data.password);
                 let linkFotoS3;
                 if (data.linkFotoPerfil)
-                    linkFotoS3 = yield awsService_1.default.instance.uploadFoto(data.linkFotoPerfil);
+                    linkFotoS3 = yield awsService_1.default.instance.uploadFoto(data.linkFotoPerfil, true);
                 const usuario = yield Usuario_1.Usuario.create({
                     userName: data.userName,
                     nombre: data.nombre,
@@ -151,7 +151,7 @@ class UsuarioController {
                 let data = req.body;
                 let linkFotoS3;
                 if (data.linkFotoPerfil)
-                    linkFotoS3 = yield awsService_1.default.instance.uploadFoto(data.linkFotoPerfil);
+                    linkFotoS3 = yield awsService_1.default.instance.uploadFoto(data.linkFotoPerfil, true);
                 yield Usuario_1.Usuario.update({
                     linkFotoPerfil: linkFotoS3.Location ? linkFotoS3.Location : ''
                 }, {

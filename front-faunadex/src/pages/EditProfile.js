@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import "../css/style.css"
 import { Button, Form } from "react-bootstrap";
 import http from '../libs/http'
+import globals from '../utilities/globals'
 
 var reader = new FileReader();
 
@@ -46,8 +47,7 @@ class EditProfile extends Component {
     EditUser = async () => {
         if (this.state.password === window.localStorage.getItem("password")) {
             let userid = window.localStorage.getItem("iduser");
-            //console.log(window.localStorage.getItem("iduser"),this.state.user,this.state.name,this.state.password,reader.result.split(",")[1]);
-            let req = await http.put('http://localhost:4000/usuario/updateUsuario', {
+            let req = await http.put(`http://${globals.host}:${globals.puerto}/usuario/updateUsuario`, {
                 usuarioId: userid,
                 userName: this.state.user,
                 nombre: this.state.name,
@@ -68,7 +68,7 @@ class EditProfile extends Component {
 
     EditFotoPerfil = async () => {
             let userid = window.localStorage.getItem("iduser");
-            let req = await http.put('http://localhost:4000/usuario/updateFotoPerfil', {
+            let req = await http.put(`http://${globals.host}:${globals.puerto}/usuario/updateFotoPerfil`, {
                 usuarioId: userid,
                 linkFotoPerfil: reader.result.split(",")[1]
             })

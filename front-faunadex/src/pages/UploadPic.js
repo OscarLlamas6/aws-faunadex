@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import "../css/style.css"
 import { Button, Form } from "react-bootstrap";
 import http from '../libs/http'
+import globals from '../utilities/globals'
+
 var reader = new FileReader();
 
 class UploadPic extends Component {
@@ -24,7 +26,7 @@ class UploadPic extends Component {
 
     getAlbums = async () => {
         let userid = window.localStorage.getItem("iduser");
-        let req = await http.get('http://localhost:4000/album/getAlbums/' + userid)
+        let req = await http.get(`http://${globals.host}:4000/album/getAlbums/` + userid)
         if (req.error) {
             alert(req.message)
         } else {
@@ -38,7 +40,7 @@ class UploadPic extends Component {
         if(this.state.albums.length == 0)return
         else await this.setState({selecalbum: this.state.albums[0].id})
 
-        let req = await http.post('http://localhost:4000/foto/subirFoto', {
+        let req = await http.post(`http://${globals.host}:${globals.puerto}/foto/subirFoto`, {
             nombre: this.state.name,
             idAlbum: this.state.selecalbum,
             linkFoto: reader.result.split(",")[1]

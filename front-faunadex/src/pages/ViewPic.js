@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import "../css/style.css"
 import { Button, Form, Carousel } from "react-bootstrap";
 import http from '../libs/http'
+import globals from '../utilities/globals'
 
 class ViewPic extends Component {
 
@@ -15,7 +16,7 @@ class ViewPic extends Component {
 
     getAlbums = async () => {
         let userid = window.localStorage.getItem("iduser");
-        let req = await http.get('http://localhost:4000/album/getAlbums/' + userid)
+        let req = await http.get(`http://${globals.host}:${globals.puerto}/album/getAlbums/` + userid)
         if (req.error) {
             alert(req.message)
         } else {

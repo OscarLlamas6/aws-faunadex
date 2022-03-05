@@ -4,7 +4,7 @@ import AwsService from '../services/awsService'
 import passwordUtil from '../utils/passwordUtil'
 import { Album } from '../models/Album'
 import { Foto } from '../models/Foto'
-import {  Op } from 'sequelize';
+import { Op } from 'sequelize';
 
 export default class UsuarioController {
 
@@ -66,7 +66,7 @@ export default class UsuarioController {
             let passEncryptada: string = passwordUtil.instance.encryptPassword(data.password)
 
             let linkFotoS3;
-            if (data.linkFotoPerfil) linkFotoS3 = await AwsService.instance.uploadFoto(data.linkFotoPerfil)
+            if (data.linkFotoPerfil) linkFotoS3 = await AwsService.instance.uploadFoto(data.linkFotoPerfil, true)
 
             const usuario: Usuario = await Usuario.create({
                 userName: data.userName,
@@ -154,7 +154,7 @@ export default class UsuarioController {
             let data = req.body
 
             let linkFotoS3;
-            if (data.linkFotoPerfil) linkFotoS3 = await AwsService.instance.uploadFoto(data.linkFotoPerfil)
+            if (data.linkFotoPerfil) linkFotoS3 = await AwsService.instance.uploadFoto(data.linkFotoPerfil, true)
 
             await Usuario.update({
                 linkFotoPerfil: linkFotoS3.Location ? linkFotoS3.Location : ''
@@ -175,8 +175,8 @@ export default class UsuarioController {
                 transaction: transaction
             })
 
-            if(!albumEncontrado)throw new Error("No se encontró album de fotos de perfil");
-            
+            if (!albumEncontrado) throw new Error("No se encontró album de fotos de perfil");
+
             const foto: Foto = await Foto.create({
                 nombre: '',
                 IdAlbum: albumEncontrado.id,

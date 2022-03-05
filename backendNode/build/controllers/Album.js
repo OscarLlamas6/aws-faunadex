@@ -11,7 +11,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequalize_1 = require("../sequalize");
 const Album_1 = require("../models/Album");
-const sequelize_1 = require("sequelize");
 const Foto_1 = require("../models/Foto");
 class AlbumController {
     createAlbum(req, res) {
@@ -46,6 +45,14 @@ class AlbumController {
             let transaction = yield sequalize_1.sequelize.transaction();
             try {
                 let data = req.body;
+                let albumFound = yield Album_1.Album.findOne({
+                    where: {
+                        id: data.idAlbum
+                    },
+                    transaction: transaction
+                });
+                if (albumFound && albumFound.nombre == 'FotosPerfil')
+                    throw new Error("El album de fotos de perfil no se puede modificar");
                 yield Album_1.Album.update({
                     nombre: data.nombre
                 }, {
@@ -119,9 +126,6 @@ class AlbumController {
                 let albums = yield Album_1.Album.findAll({
                     where: {
                         IdUsuario: params.idUsuario,
-                        nombre: {
-                            [sequelize_1.Op.ne]: 'FotosPerfil'
-                        }
                     },
                     include: [
                         { model: Foto_1.Foto }
