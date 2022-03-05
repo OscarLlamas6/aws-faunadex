@@ -42,6 +42,15 @@ export default class AlbumController {
         try {
             let data = req.body
 
+            let albumFound : Album | null  = await Album.findOne({
+                where: {
+                    id: data.idAlbum
+                },
+                transaction: transaction
+            })
+
+            if(albumFound && albumFound.nombre == 'FotosPerfil') throw new Error("El album de fotos de perfil no se puede modificar");
+
             await Album.update({
                 nombre: data.nombre
             },
@@ -118,9 +127,6 @@ export default class AlbumController {
             let albums: Album[] | null = await Album.findAll({
                 where: {
                     IdUsuario: params.idUsuario,
-                    nombre: {
-                        [Op.ne]: 'FotosPerfil'
-                    }
                 },
                 include: [
                     { model: Foto }

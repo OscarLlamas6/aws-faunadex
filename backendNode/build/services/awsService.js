@@ -18,10 +18,10 @@ const s3 = new AWS.S3({
 });
 class AwsService {
     constructor() {
-        this.uploadFoto = (foto, ext = '.jpg') => __awaiter(this, void 0, void 0, function* () {
+        this.uploadFoto = (foto, esPerfil) => __awaiter(this, void 0, void 0, function* () {
             let buff = Buffer.from(foto, 'base64');
             let id = (0, uuid_1.v4)();
-            let name = id + ext;
+            let name = esPerfil ? 'Fotos_Perfil/' + id + '.jpg' : 'Fotos_Publicadas/' + id + '.jpg';
             // Setting up S3 upload parameters
             const params = {
                 Bucket: BUCKET_NAME,

@@ -47,7 +47,7 @@ class EditProfile extends Component {
     EditUser = async () => {
         if (this.state.password === window.localStorage.getItem("password")) {
             let userid = window.localStorage.getItem("iduser");
-            let req = await http.put(`http://${globals.host}:4000/usuario/updateUsuario`, {
+            let req = await http.put(`http://${globals.host}:${globals.puerto}/usuario/updateUsuario`, {
                 usuarioId: userid,
                 userName: this.state.user,
                 nombre: this.state.name,
@@ -68,7 +68,7 @@ class EditProfile extends Component {
 
     EditFotoPerfil = async () => {
             let userid = window.localStorage.getItem("iduser");
-            let req = await http.put(`http://${globals.host}:4000/usuario/updateFotoPerfil`, {
+            let req = await http.put(`http://${globals.host}:${globals.puerto}/usuario/updateFotoPerfil`, {
                 usuarioId: userid,
                 linkFotoPerfil: reader.result.split(",")[1]
             })

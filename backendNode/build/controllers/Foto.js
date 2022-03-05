@@ -30,7 +30,7 @@ class FotoController {
                 });
                 if (fotoEcontrada)
                     throw new Error('Ya existe una foto con este nombre en este album');
-                let linkFotoS3 = yield awsService_1.default.instance.uploadFoto(data.linkFoto);
+                let linkFotoS3 = yield awsService_1.default.instance.uploadFoto(data.linkFoto, false);
                 const foto = yield Foto_1.Foto.create({
                     nombre: data.nombre,
                     IdAlbum: data.idAlbum,

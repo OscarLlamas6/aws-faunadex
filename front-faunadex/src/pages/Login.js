@@ -18,7 +18,7 @@ class Login extends Component {
     }
 
     Login=async()=>{
-        let req = await http.post(`http://${globals.host}:4000/usuario/login`,{
+        let req = await http.post(`http://${globals.host}:${globals.puerto}/usuario/login`,{
             userName: this.state.user,
             password: this.state.password
         })
