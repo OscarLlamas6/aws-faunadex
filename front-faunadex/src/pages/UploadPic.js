@@ -26,7 +26,7 @@ class UploadPic extends Component {
 
     getAlbums = async () => {
         let userid = window.localStorage.getItem("iduser");
-        let req = await http.get(`http://${globals.host}:4000/album/getAlbums/` + userid)
+        let req = await http.get(`http://${globals.host}:${globals.puerto}/album/getAlbums/` + userid)
         if (req.error) {
             alert(req.message)
         } else {
