@@ -18,6 +18,7 @@ const awsService_1 = __importDefault(require("../services/awsService"));
 const passwordUtil_1 = __importDefault(require("../utils/passwordUtil"));
 const Album_1 = require("../models/Album");
 const Foto_1 = require("../models/Foto");
+const sequelize_1 = require("sequelize");
 class UsuarioController {
     constructor() {
         this.getUsuarios = (req, res) => __awaiter(this, void 0, void 0, function* () {
@@ -84,7 +85,7 @@ class UsuarioController {
                 //Se crea el album 'FotosPerfil' por default al crearse el usuario
                 const album = yield Album_1.Album.create({
                     nombre: 'FotosPerfil',
-                    IdUsuario: data.idUsuario
+                    IdUsuario: usuario.id
                 }, { transaction: transaction });
                 //Se crea foto que ira en el album de fotos de perfil del usuario
                 const foto = yield Foto_1.Foto.create({
@@ -108,20 +109,20 @@ class UsuarioController {
                 let data = req.body;
                 let usuario = yield Usuario_1.Usuario.findOne({
                     where: {
-                        id: data.usuarioId,
+                        id: {
+                            [sequelize_1.Op.ne]: data.usuarioId,
+                        },
+                        userName: {
+                            [sequelize_1.Op.eq]: data.userName
+                        }
                     },
                     transaction: transaction
                 });
-                if (!usuario)
-                    throw new Error('Este usuario aun no esta registrado');
-                let matchPasword = passwordUtil_1.default.instance.comparePassword(data.password, usuario.password);
-                if (!matchPasword)
-                    throw new Error('Contraseña incorrecta');
-                let passEncryptada = passwordUtil_1.default.instance.encryptPassword(data.password);
+                if (usuario)
+                    throw new Error('Este username ya esta siendo utilizado');
                 yield Usuario_1.Usuario.update({
                     userName: data.userName,
-                    nombre: data.nombre,
-                    password: passEncryptada
+                    nombre: data.nombre
                 }, {
                     where: {
                         id: data.usuarioId,
