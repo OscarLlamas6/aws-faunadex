@@ -40,7 +40,7 @@ class UploadPic extends Component {
         if(this.state.albums.length == 0)return
         else await this.setState({selecalbum: this.state.albums[0].id})
 
-        let req = await http.post(`http://${globals.host}:4000/foto/subirFoto`, {
+        let req = await http.post(`http://${globals.host}:${globals.puerto}/foto/subirFoto`, {
             nombre: this.state.name,
             idAlbum: this.state.selecalbum,
             linkFoto: reader.result.split(",")[1]
