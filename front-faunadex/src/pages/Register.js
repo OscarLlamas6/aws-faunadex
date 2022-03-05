@@ -16,7 +16,7 @@ class Register extends Component {
 
     Register = async () => {
         if (this.state.password === this.state.confirmpass) {
-            let req = await http.post(`http://${globals.host}:${globals.puerto}/usuario/registro`,{
+            let req = await http.post(`${globals.enlace}/usuario/registro`,{
                 userName: this.state.user,
                 nombre: this.state.name,
                 password: this.state.password,
