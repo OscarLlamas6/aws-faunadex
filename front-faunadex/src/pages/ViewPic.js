@@ -31,8 +31,8 @@ class ViewPic extends Component {
                 <h1>Ver Fotos</h1>
                 <div>
                     {
-                        this.state.albums.map((album) => {
-                            return <div>
+                        this.state.albums.map((album, index) => {
+                            return <div key={index}>
                                 <h3>{album.nombre}</h3>
                                 <Carousel>
                                 {album.Fotos.map(foto => (
