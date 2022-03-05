@@ -1,6 +1,6 @@
 let variables = {
     host: 'localhost',
-    puerto: '4000'
+    puerto: '3006'
 }
 
 export default variables

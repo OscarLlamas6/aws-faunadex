@@ -91,8 +91,6 @@ class EditProfile extends Component {
                             <Form.Control type="text" placeholder="Usuario" defaultValue={this.state.user} name="user" onChange={this.handleChange} />
                             <Form.Label>Nombre Completo: </Form.Label>
                             <Form.Control type="text" placeholder="Nombre" defaultValue={this.state.name} name="name" onChange={this.handleChange} />
-                            <Form.Label>Elegir Foto</Form.Label>
-                            <Form.Control type="file" onChange={this.handleImage} accept=".jpg,.png" />
                             <Form.Label>Password: </Form.Label>
                             <Form.Control type="password" placeholder="Password" name="password" onChange={this.handleChange} />
                         </Form.Group>
