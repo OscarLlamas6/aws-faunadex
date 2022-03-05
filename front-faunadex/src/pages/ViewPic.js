@@ -1,33 +1,57 @@
-import React, {Component} from "react";
+import React, { Component } from "react";
 import "../css/style.css"
-import {Button,Form} from "react-bootstrap";
-import Cookies from "universal-cookie"
-
-const cookies =new Cookies();
+import { Button, Form, Carousel } from "react-bootstrap";
+import http from '../libs/http'
 
 class ViewPic extends Component {
 
-    componentDidMount(){
-        if (!cookies.get("iduser")) {
-            window.location.href="./"
+    state = {
+        albums: [],
+    }
+
+    componentDidMount() {
+        this.getAlbums()
+    }
+
+    getAlbums = async () => {
+        let userid = window.localStorage.getItem("iduser");
+        let req = await http.get('http://localhost:4000/album/getAlbums/' + userid)
+        if (req.error) {
+            alert(req.message)
+        } else {
+            console.log(req.result)
+            this.setState({ albums: req.result })
         }
-        console.log(cookies.get("iduser"))
     }
 
     render() {
         return (
             <div className="Main">
                 <h1>Ver Fotos</h1>
-                <Form>
-                    <Form.Group>
-                        <Button variant="primary" href="/uploadpic">Subir Foto</Button>
-                        <Button variant="primary" href="editalbum">Editar Album</Button>
-                    </Form.Group>
-                    
-                    <br/>
-                    <Button variant="primary" href="/home">Regresar</Button>
-                </Form>
-            </div> 
+                <div>
+                    {
+                        this.state.albums.map((album) => {
+                            return <div>
+                                <h3>{album.nombre}</h3>
+                                <Carousel>
+                                {album.Fotos.map(foto => (
+                                    <Carousel.Item key={foto.id}>
+                                        <img
+                                            src={foto.link}
+                                            alt="Imagen"
+                                        />
+                                        <Carousel.Caption>
+                                            <h3>{foto.nombre}</h3>
+                                        </Carousel.Caption>
+                                    </Carousel.Item>
+
+                                ))}
+                            </Carousel>
+                            </div>
+                        })
+                    }
+                </div>
+            </div>
         )
     }
 }
