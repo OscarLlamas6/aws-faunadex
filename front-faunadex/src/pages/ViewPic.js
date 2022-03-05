@@ -16,7 +16,7 @@ class ViewPic extends Component {
 
     getAlbums = async () => {
         let userid = window.localStorage.getItem("iduser");
-        let req = await http.get(`http://${globals.host}:${globals.puerto}/album/getAlbums/` + userid)
+        let req = await http.get(`${globals.enlace}/album/getAlbums/` + userid)
         if (req.error) {
             alert(req.message)
         } else {

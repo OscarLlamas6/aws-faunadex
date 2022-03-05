@@ -29,7 +29,7 @@ class EditAlbum extends Component {
 
     getAlbums = async () => {
         let userid = window.localStorage.getItem("iduser");
-        let req = await http.get(`http://${globals.host}:${globals.puerto}/album/getAlbums/` + userid)
+        let req = await http.get(`${globals.enlace}/album/getAlbums/` + userid)
         if (req.error) {
             alert(req.message)
         } else {
@@ -40,7 +40,7 @@ class EditAlbum extends Component {
 
     createAlbum = async () => {
         let userid = window.localStorage.getItem("iduser");
-        let req = await http.post(`http://${globals.host}:${globals.puerto}/album/crearAlbum`, {
+        let req = await http.post(`${globals.enlace}/album/crearAlbum`, {
             nombre: this.state.name,
             idUsuario: userid
         })
@@ -55,7 +55,7 @@ class EditAlbum extends Component {
 
     editAlbum = async () => {
         console.log(this.state)
-        let req = await http.put(`http://${globals.host}:${globals.puerto}/album/editarAlbum`, {
+        let req = await http.put(`${globals.enlace}/album/editarAlbum`, {
             nombre: this.state.nombreNuevo,
             idAlbum: this.state.selecalbum
         })
@@ -68,7 +68,7 @@ class EditAlbum extends Component {
     }
 
     deleteAlbum = async () => {
-        let req = await http.delete(`http://${globals.host}:${globals.puerto}/album/eliminarAlbum/` + this.state.selecalbum)
+        let req = await http.delete(`${globals.enlace}/album/eliminarAlbum/` + this.state.selecalbum)
         if (req.error) {
             alert(req.message)
         } else {

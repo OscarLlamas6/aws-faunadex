@@ -26,7 +26,7 @@ class UploadPic extends Component {
 
     getAlbums = async () => {
         let userid = window.localStorage.getItem("iduser");
-        let req = await http.get(`http://${globals.host}:${globals.puerto}/album/getAlbums/` + userid)
+        let req = await http.get(`${globals.enlace}/album/getAlbums/` + userid)
         if (req.error) {
             alert(req.message)
         } else {
@@ -40,7 +40,7 @@ class UploadPic extends Component {
         if(this.state.albums.length == 0)return
         else await this.setState({selecalbum: this.state.albums[0].id})
 
-        let req = await http.post(`http://${globals.host}:${globals.puerto}/foto/subirFoto`, {
+        let req = await http.post(`${globals.enlace}/foto/subirFoto`, {
             nombre: this.state.name,
             idAlbum: this.state.selecalbum,
             linkFoto: reader.result.split(",")[1]
