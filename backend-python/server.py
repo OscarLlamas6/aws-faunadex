@@ -1,4 +1,5 @@
 #importaciones
+from traceback import print_tb
 import boto3
 import base64 
 import uuid
@@ -225,8 +226,7 @@ def update():
             "error": True,
             "message": "Error al actualizar usuario"
             }), 400            
-      
-      
+           
 @app.route('/usuario/updateFotoPerfil', methods=['PUT']) 
 @cross_origin(supports_credentials=True)
 def updateFotoPerfil():
@@ -288,14 +288,14 @@ def updateFotoPerfil():
             "message": "Error al actualizar foto de perfil"
             }), 400    
          
-@app.route('/getUsuario/<id>', methods=['GET']) 
+@app.route('/usuario/getUsuario/<id>', methods=['GET']) 
 @cross_origin(supports_credentials=True)
 def getProfile(id):
     
     try:
         #leyendo json
         mycursor = mydb.cursor()
-        sql = "SELECT * FROM semi1practica1.Usuario WHERE idUsuario = " + id
+        sql = "SELECT * FROM semi1practica1.Usuarios WHERE id = " + id
         mycursor.execute(sql)
         # Fetch one record and return result
         selectedUser = mycursor.fetchone()
@@ -519,19 +519,36 @@ def getAlbumByUser(idUsuario):
         mycursor = mydb.cursor()
         sql = "SELECT * FROM semi1practica1.Albums WHERE IdUsuario = " + idUsuario
         mycursor.execute(sql)
-        selectedAlbum = mycursor.fetchall()
+        selectedAlbums = mycursor.fetchall()
         
-        if selectedAlbum:
+        if selectedAlbums:
             
             myResults = []          
-            for x in selectedAlbum:
+            for x in selectedAlbums:
                 albumInfo = {
                     "id": x[0],
                     "nombre": x[1],
-                    "idUsuario": x[4]
-                }                
+                    "idUsuario": x[4],
+                    "Fotos" : []
+                }
+           
                 myResults.append(albumInfo)
             
+            for album in myResults:
+                albumID = str(album["id"])
+                sql2 = "SELECT * FROM semi1practica1.Fotos WHERE IdAlbum = " + albumID
+                mycursor.execute(sql2)
+                selectedFotos = mycursor.fetchall()
+                
+                for x in selectedFotos:
+                    FotoInfo = {
+                        "id": x[0],
+                        "nombre": x[1],
+                        "link": x[2]
+                    }                
+                    album['Fotos'].append(FotoInfo)  
+                
+              
             return jsonify({
                 "result": myResults,
                 "error": False,
@@ -595,15 +612,14 @@ def subirFoto():
             "message": "Error al registrar nueva foto"
             }), 400
 
-
-@app.route('/getFotos/<idAlbum>', methods=['GET']) 
+@app.route('/foto/getFotos/<idAlbum>', methods=['GET']) 
 @cross_origin(supports_credentials=True)
 def getFotosByAlbum(idAlbum):
     
     try:
         #leyendo json
         mycursor = mydb.cursor()
-        sql = "SELECT * FROM semi1practica1.Foto WHERE idAlbum = " + idAlbum
+        sql = "SELECT * FROM semi1practica1.Fotos WHERE idAlbum = " + idAlbum
         mycursor.execute(sql)
         selectedFotos = mycursor.fetchall()
         
@@ -636,6 +652,7 @@ def getFotosByAlbum(idAlbum):
             "error": True,
             "message": "Fotos no encontradas"
             }), 400
+
 
 # Fin ----
 if __name__ == '__main__':
