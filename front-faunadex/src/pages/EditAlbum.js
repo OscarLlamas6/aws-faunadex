@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import "../css/style.css"
 import { Button, Form } from "react-bootstrap";
 import http from '../libs/http'
+import globals from '../utilities/globals'
 
 class EditAlbum extends Component {
 
@@ -28,7 +29,7 @@ class EditAlbum extends Component {
 
     getAlbums = async () => {
         let userid = window.localStorage.getItem("iduser");
-        let req = await http.get('http://localhost:4000/album/getAlbums/' + userid)
+        let req = await http.get(`http://${globals.host}:4000/album/getAlbums/` + userid)
         if (req.error) {
             alert(req.message)
         } else {
@@ -39,7 +40,7 @@ class EditAlbum extends Component {
 
     createAlbum = async () => {
         let userid = window.localStorage.getItem("iduser");
-        let req = await http.post('http://localhost:4000/album/crearAlbum', {
+        let req = await http.post(`http://${globals.host}:4000/album/crearAlbum`, {
             nombre: this.state.name,
             idUsuario: userid
         })
@@ -54,7 +55,7 @@ class EditAlbum extends Component {
 
     editAlbum = async () => {
         console.log(this.state)
-        let req = await http.put('http://localhost:4000/album/editarAlbum', {
+        let req = await http.put(`http://${globals.host}:4000/album/editarAlbum`, {
             nombre: this.state.nombreNuevo,
             idAlbum: this.state.selecalbum
         })
@@ -67,7 +68,7 @@ class EditAlbum extends Component {
     }
 
     deleteAlbum = async () => {
-        let req = await http.delete('http://localhost:4000/album/eliminarAlbum/' + this.state.selecalbum)
+        let req = await http.delete(`http://${globals.host}:4000/album/eliminarAlbum/` + this.state.selecalbum)
         if (req.error) {
             alert(req.message)
         } else {

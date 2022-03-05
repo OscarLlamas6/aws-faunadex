@@ -2,6 +2,7 @@ import React, {Component} from "react";
 import "../css/style.css"
 import {Button,Form} from "react-bootstrap";
 import http from '../libs/http'
+import globals from '../utilities/globals'
 
 var reader = new FileReader();
 
@@ -15,7 +16,7 @@ class Register extends Component {
 
     Register = async () => {
         if (this.state.password === this.state.confirmpass) {
-            let req = await http.post('http://localhost:4000/usuario/registro',{
+            let req = await http.post(`http://${globals.host}:4000/usuario/registro`,{
                 userName: this.state.user,
                 nombre: this.state.name,
                 password: this.state.password,
