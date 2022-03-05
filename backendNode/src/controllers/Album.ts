@@ -70,7 +70,7 @@ export default class AlbumController {
             })
 
             await transaction.commit()
-            return res.status(201).send({ error: false, message: 'Se actualizo usuario correctamente', result: album });
+            return res.status(201).send({ error: false, message: 'Se actualizo album correctamente', result: album });
         } catch (error: any) {
             await transaction.rollback()
             return res.status(500).send({ error: true, message: error.message });
