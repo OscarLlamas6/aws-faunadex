@@ -7,8 +7,7 @@
 | Carlos Raúl Campos Meléndez | 201800639 |
 | José Alejandro Santizo Cotto | 201709309|
 | Sergio Sebastian Chacón Herrera | 201709159 |
-| Kevin José Sandoval Catalán  | 201807265 |
-| Ricardo Antonio Dubon Contreras  | 201612131 |
+| Oscar Alfredo Llamas Lemus | 201602625|
 
 ## Descripción de la arquitectura utilizada
 
