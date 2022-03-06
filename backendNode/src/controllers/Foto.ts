@@ -21,12 +21,12 @@ export default class FotoController {
 
             if (fotoEcontrada) throw new Error('Ya existe una foto con este nombre en este album');
 
-            let linkFotoS3 = await AwsService.instance.uploadFoto(data.linkFoto)
+            let linkFotoS3 = await AwsService.instance.uploadFoto(data.linkFoto, false)
 
             const foto: Foto = await Foto.create({
                 nombre: data.nombre,
                 IdAlbum: data.idAlbum,
-                link: linkFotoS3
+                link: linkFotoS3.Location ? linkFotoS3.Location : ''
             },
                 { transaction: transaction }
             )

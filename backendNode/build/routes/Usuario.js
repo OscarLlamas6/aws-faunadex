@@ -19,3 +19,6 @@ exports.Usuario.post('/registro', function (req, res) {
 exports.Usuario.put('/updateUsuario', function (req, res) {
     Usuario_1.default.instance.updateUser(req, res);
 });
+exports.Usuario.put('/updateFotoPerfil', function (req, res) {
+    Usuario_1.default.instance.updateFotoPerfil(req, res);
+});

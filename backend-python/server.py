@@ -1,8 +1,8 @@
 #importaciones
+from traceback import print_tb
 import boto3
 import base64 
 import uuid
-import tinys3
 import io
 import os
 #Flask y Config
@@ -54,7 +54,7 @@ def root():
         "mensaje": "BACKEND PYTHON | AWS SEMI1 :D",
     })
 
-@app.route('/registro', methods=['POST']) 
+@app.route('/usuario/registro', methods=['POST']) 
 @cross_origin(supports_credentials=True)
 def registrar():
     
@@ -64,7 +64,7 @@ def registrar():
         userName=respuesta['userName']
         nombre=respuesta['nombre']
         password=respuesta['password']
-        imgStr = respuesta['linkFoto']
+        imgStr = respuesta['linkFotoPerfil']
         
         encryptedPass = hashlib.md5(password.encode('utf-8')).hexdigest()
 
@@ -84,9 +84,20 @@ def registrar():
         nbucket.upload_fileobj(io.BytesIO(imageb64),pathFoto,paramS3)
 
         mycursor = mydb.cursor()
-        sql = "INSERT INTO semi1practica1.Usuario (userName, nombre, password, linkFotoPerfil) VALUES (%s, %s, %s, %s)"
+        sql = "INSERT INTO semi1practica1.Usuarios (userName, nombre, password, linkFotoPerfil) VALUES (%s, %s, %s, %s)"
         val = (userName, nombre, encryptedPass, dirURL)
         mycursor.execute(sql, val)
+        
+        idUsuario = str(mycursor.lastrowid)
+        sql2 = "INSERT INTO semi1practica1.Albums (nombre, idUsuario) VALUES (%s, %s)"
+        val2 = ("FotosPerfil", idUsuario)
+        mycursor.execute(sql2, val2)
+        
+        idAlbum = str(mycursor.lastrowid)
+        sql3 = "INSERT INTO semi1practica1.Fotos (nombre, link, idAlbum) VALUES (%s, %s, %s)"
+        val3 = (str(idUsuario)+"-"+idUnico, dirURL, idAlbum)
+        mycursor.execute(sql3, val3)
+        
         mydb.commit()
 
         return jsonify({
@@ -101,7 +112,7 @@ def registrar():
             "message": "Error al registrar nuevo usuario"
             }), 400               
 
-@app.route('/login', methods=['POST']) 
+@app.route('/usuario/login', methods=['POST']) 
 @cross_origin(supports_credentials=True)
 def login():
     try:
@@ -113,7 +124,7 @@ def login():
         encryptedPass = hashlib.md5(password.encode('utf-8')).hexdigest()
         
         mycursor = mydb.cursor()
-        sql = "SELECT * FROM semi1practica1.Usuario WHERE userName = %s AND password = %s"
+        sql = "SELECT * FROM semi1practica1.Usuarios WHERE userName = %s AND password = %s"
         val = (userName, encryptedPass)
         mycursor.execute(sql, val)
         # Fetch one record and return result
@@ -122,9 +133,10 @@ def login():
         if account: 
             
             userInfo = {
-                "idUsuario" : account[0],
+                "id" : account[0],
                 "userName" : account[1],
                 "nombre" : account[2],
+                "password" : account[3],
                 "linkFotoPerfil" : account[4]
             }
             
@@ -148,7 +160,7 @@ def login():
             "message": "Credenciales invalidas o usuario inexistente"
             }), 400 
 
-@app.route('/updateUsuario', methods=['PUT']) 
+@app.route('/usuario/updateUsuario', methods=['PUT']) 
 @cross_origin(supports_credentials=True)
 def update():
     
@@ -158,18 +170,34 @@ def update():
         idUsuario=respuesta['usuarioId']
         userName=respuesta['userName']
         nombre=respuesta['nombre']
-        password=respuesta['password']
-        linkFoto = respuesta['linkFoto']
-        encryptedPass = hashlib.md5(password.encode('utf-8')).hexdigest()
+        
+        print(idUsuario)
+        print(userName)
+        print(nombre)
+    
         
         mycursor = mydb.cursor()
-        sql = "UPDATE semi1practica1.Usuario SET userName = %s, nombre = %s, password = %s, linkFotoPerfil = %s WHERE idUsuario = %s"
-        val = (userName, nombre, encryptedPass, linkFoto, idUsuario)
+        
+        sql3 = "SELECT * FROM semi1practica1.Usuarios WHERE id != %s AND userName = %s"
+        val3 = (idUsuario, userName)
+        mycursor.execute(sql3, val3)
+        myUser = mycursor.fetchone()
+        
+        if myUser:
+             return jsonify({
+            "result": "",
+            "error": True,
+            "message": "Ya existe un usuario con ese userName"
+            }), 400 
+        
+        
+        sql = "UPDATE semi1practica1.Usuarios SET userName = %s, nombre = %s WHERE id = %s"
+        val = (userName, nombre, idUsuario)
         mycursor.execute(sql, val)
         
         mydb.commit()
         
-        sql = "SELECT * FROM semi1practica1.Usuario WHERE idUsuario = " + str(idUsuario)
+        sql = "SELECT * FROM semi1practica1.Usuarios WHERE id = " + str(idUsuario)
         mycursor.execute(sql)
         # Fetch one record and return result
         updatedUser = mycursor.fetchone()
@@ -177,10 +205,8 @@ def update():
         if updatedUser:
             
             userInfo = {
-                    "idUsuario" : updatedUser[0],
                     "userName" : updatedUser[1],
-                    "nombre" : updatedUser[2],
-                    "linkFotoPerfil" : updatedUser[4]
+                    "nombre" : updatedUser[2]
                 }
             
             return jsonify({
@@ -200,15 +226,76 @@ def update():
             "error": True,
             "message": "Error al actualizar usuario"
             }), 400            
+           
+@app.route('/usuario/updateFotoPerfil', methods=['PUT']) 
+@cross_origin(supports_credentials=True)
+def updateFotoPerfil():
+    
+    try:
+        #leyendo json
+        respuesta = request.get_json()
+        idUsuario=respuesta['usuarioId']
+        imgStr = respuesta['linkFotoPerfil']
+        
+        #creamos su idUnico
+        idUnico=str(uuid.uuid4())
+
+        #convierto a b64
+        imageb64 = base64.b64decode(imgStr)
+
+        #parametros S3
+        paramS3 = {
+            'ContentType':'image/jpg'
+        }
+        dirURL ='http://' + BUCKET_NAME + '.s3.' + AWS_REGION + '.amazonaws.com/Fotos_Perfil/'+idUnico+'.jpg'
+        pathFoto="Fotos_Perfil/"+idUnico+'.jpg'
+        nbucket = s3.Bucket(BUCKET_NAME)
+        nbucket.upload_fileobj(io.BytesIO(imageb64),pathFoto,paramS3)
+        
+        mycursor = mydb.cursor()
+        sql = "SELECT * FROM semi1practica1.Albums WHERE nombre = %s AND IdUsuario = %s"
+        val = ("FotosPerfil", idUsuario)
+        mycursor.execute(sql, val)
+        # Fetch one record and return result
+        myAlbum = mycursor.fetchone()
+        
+        if myAlbum: 
+            
+            idAlbum = myAlbum[0]
+            mycursor = mydb.cursor()
+            sql2 = "INSERT INTO semi1practica1.Fotos (nombre, link, IdAlbum) VALUES (%s, %s, %s)"
+            val2 = (str(idUsuario)+"-"+idUnico, dirURL, idAlbum)
+            mycursor.execute(sql2, val2)
+            mydb.commit()       
+       
+            return jsonify({
+                "result": dirURL,
+                "error": False,
+                "message": "Foto de perfil actualizada correctamente"
+                }), 201
+        else:
+    
+            return jsonify({
+            "result": "",
+            "error": True,
+            "message": "Error al actualizar foto de perfil"
+            }), 400      
+            
+    except:
+        return jsonify({
+            "result": "",
+            "error": True,
+            "message": "Error al actualizar foto de perfil"
+            }), 400    
          
-@app.route('/getUsuario/<id>', methods=['GET']) 
+@app.route('/usuario/getUsuario/<id>', methods=['GET']) 
 @cross_origin(supports_credentials=True)
 def getProfile(id):
     
     try:
         #leyendo json
         mycursor = mydb.cursor()
-        sql = "SELECT * FROM semi1practica1.Usuario WHERE idUsuario = " + id
+        sql = "SELECT * FROM semi1practica1.Usuarios WHERE id = " + id
         mycursor.execute(sql)
         # Fetch one record and return result
         selectedUser = mycursor.fetchone()
@@ -233,7 +320,7 @@ def getProfile(id):
             "message": "Usuario no encontrado"
             }), 400  
       
-@app.route('/crearAlbum', methods=['POST']) 
+@app.route('/album/crearAlbum', methods=['POST']) 
 @cross_origin(supports_credentials=True)
 def album():
     
@@ -244,14 +331,29 @@ def album():
         nombre=respuesta['nombre']
                
         mycursor = mydb.cursor()
-        sql = "INSERT INTO semi1practica1.Album (nombre, idUsuario) VALUES (%s, %s)"
+        
+        sql2 = "SELECT * FROM semi1practica1.Albums WHERE idUsuario = %s AND nombre = %s"
+        val2 = (idUsuario, nombre)
+        mycursor.execute(sql2, val2)
+        resultado2 = mycursor.fetchone()
+        
+        if resultado2:
+             return jsonify({
+            "result": "",
+            "error": True,
+            "message": "Ya existe un album con ese nombre"
+            }), 400
+        
+        
+        
+        sql = "INSERT INTO semi1practica1.Albums (nombre, idUsuario) VALUES (%s, %s)"
         val = (nombre, idUsuario)
         mycursor.execute(sql, val)
         mydb.commit()
         
         id = str(mycursor.lastrowid)
         
-        sql = "SELECT * FROM semi1practica1.Album WHERE idAlbum = " + id
+        sql = "SELECT * FROM semi1practica1.Albums WHERE id = " + id
         mycursor.execute(sql)
         # Fetch one record and return result
         selectedAlbum = mycursor.fetchone()
@@ -284,7 +386,7 @@ def album():
             "message": "Error al crear nuevo album"
             }), 400    
 
-@app.route('/editarAlbum', methods=['PUT']) 
+@app.route('/album/editarAlbum', methods=['PUT']) 
 @cross_origin(supports_credentials=True)
 def updateAlbum():
     try:
@@ -293,15 +395,27 @@ def updateAlbum():
         respuesta = request.get_json()
         idAlbum=respuesta['idAlbum']
         nombre=respuesta['nombre']
+
+        mycursor = mydb.cursor() 
+        sql3 = "SELECT * FROM semi1practica1.Albums WHERE id = " + str(idAlbum)
+        mycursor.execute(sql3)
+        resultado = mycursor.fetchone()
         
-        mycursor = mydb.cursor()
-        sql = "UPDATE semi1practica1.Album SET nombre = %s WHERE idAlbum = %s"
+        if resultado and resultado[1] == "FotosPerfil":
+             return jsonify({
+            "result": "",
+            "error": True,
+            "message": "No se puede editar este album"
+            }), 400
+               
+        
+        sql = "UPDATE semi1practica1.Albums SET nombre = %s WHERE id = %s"
         val = (nombre, idAlbum)
         mycursor.execute(sql, val)
         
         mydb.commit()
         
-        sql = "SELECT * FROM semi1practica1.Album WHERE idAlbum = " + str(idAlbum)
+        sql = "SELECT * FROM semi1practica1.Albums WHERE id = " + str(idAlbum)
         mycursor.execute(sql)
         # Fetch one record and return result
         updatedAlbum = mycursor.fetchone()
@@ -333,14 +447,14 @@ def updateAlbum():
             "message": "Error al actualizar album"
             }), 400
     
-@app.route('/eliminarAlbum/<id>', methods=['DELETE']) 
+@app.route('/album/eliminarAlbum/<id>', methods=['DELETE']) 
 @cross_origin(supports_credentials=True)
 def deleteAlbum(id):
     
     try:
         #leyendo json
         mycursor = mydb.cursor()
-        sql = "DELETE FROM semi1practica1.Album WHERE idAlbum = " + id
+        sql = "DELETE FROM semi1practica1.Albums WHERE id = " + id
         mycursor.execute(sql)
         mydb.commit()
                
@@ -357,14 +471,14 @@ def deleteAlbum(id):
             "message": "Error al eliminar album"
             }), 400    
 
-@app.route('/getAlbum/<id>', methods=['GET']) 
+@app.route('/album/getAlbum/<id>', methods=['GET']) 
 @cross_origin(supports_credentials=True)
 def getAlbum(id):
     
     try:
         #leyendo json
         mycursor = mydb.cursor()
-        sql = "SELECT * FROM semi1practica1.Album WHERE idAlbum = " + id
+        sql = "SELECT * FROM semi1practica1.Albums WHERE id = " + id
         mycursor.execute(sql)
         # Fetch one record and return result
         selectedAlbum = mycursor.fetchone()
@@ -396,28 +510,45 @@ def getAlbum(id):
             "message": "Album no encontrado"
             }), 400    
 
-@app.route('/getAlbumes/<idUsuario>', methods=['GET']) 
+@app.route('/album/getAlbums/<idUsuario>', methods=['GET']) 
 @cross_origin(supports_credentials=True)
 def getAlbumByUser(idUsuario):
     
     try:
         #leyendo json
         mycursor = mydb.cursor()
-        sql = "SELECT * FROM semi1practica1.Album WHERE idUsuario = " + idUsuario
+        sql = "SELECT * FROM semi1practica1.Albums WHERE IdUsuario = " + idUsuario
         mycursor.execute(sql)
-        selectedAlbum = mycursor.fetchall()
+        selectedAlbums = mycursor.fetchall()
         
-        if selectedAlbum:
+        if selectedAlbums:
             
             myResults = []          
-            for x in selectedAlbum:
+            for x in selectedAlbums:
                 albumInfo = {
-                    "idAlbum": x[0],
+                    "id": x[0],
                     "nombre": x[1],
-                    "idUsuario": x[2]
-                }                
+                    "idUsuario": x[4],
+                    "Fotos" : []
+                }
+           
                 myResults.append(albumInfo)
             
+            for album in myResults:
+                albumID = str(album["id"])
+                sql2 = "SELECT * FROM semi1practica1.Fotos WHERE IdAlbum = " + albumID
+                mycursor.execute(sql2)
+                selectedFotos = mycursor.fetchall()
+                
+                for x in selectedFotos:
+                    FotoInfo = {
+                        "id": x[0],
+                        "nombre": x[1],
+                        "link": x[2]
+                    }                
+                    album['Fotos'].append(FotoInfo)  
+                
+              
             return jsonify({
                 "result": myResults,
                 "error": False,
@@ -437,7 +568,7 @@ def getAlbumByUser(idUsuario):
             "message": "Albumes no encontrados"
             }), 400
 
-@app.route('/subirFoto', methods=['POST']) 
+@app.route('/foto/subirFoto', methods=['POST']) 
 @cross_origin(supports_credentials=True)
 def subirFoto():
     
@@ -464,7 +595,7 @@ def subirFoto():
         nbucket.upload_fileobj(io.BytesIO(imageb64),pathFoto,paramS3)
 
         mycursor = mydb.cursor()
-        sql = "INSERT INTO semi1practica1.Foto (nombre, link, idAlbum) VALUES (%s, %s, %s)"
+        sql = "INSERT INTO semi1practica1.Fotos (nombre, link, idAlbum) VALUES (%s, %s, %s)"
         val = (nombre, dirURL, idAlbum)
         mycursor.execute(sql, val)
         mydb.commit()
@@ -481,15 +612,14 @@ def subirFoto():
             "message": "Error al registrar nueva foto"
             }), 400
 
-
-@app.route('/getFotos/<idAlbum>', methods=['GET']) 
+@app.route('/foto/getFotos/<idAlbum>', methods=['GET']) 
 @cross_origin(supports_credentials=True)
 def getFotosByAlbum(idAlbum):
     
     try:
         #leyendo json
         mycursor = mydb.cursor()
-        sql = "SELECT * FROM semi1practica1.Foto WHERE idAlbum = " + idAlbum
+        sql = "SELECT * FROM semi1practica1.Fotos WHERE idAlbum = " + idAlbum
         mycursor.execute(sql)
         selectedFotos = mycursor.fetchall()
         
@@ -522,6 +652,7 @@ def getFotosByAlbum(idAlbum):
             "error": True,
             "message": "Fotos no encontradas"
             }), 400
+
 
 # Fin ----
 if __name__ == '__main__':

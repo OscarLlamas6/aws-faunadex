@@ -1,6 +1,7 @@
 import { sequelize } from '../sequalize'
 import { Album } from '../models/Album'
-import { Usuario } from '../models/Usuario'
+import { Op } from 'sequelize';
+import { Foto } from '../models/Foto'
 
 export default class AlbumController {
 
@@ -41,6 +42,15 @@ export default class AlbumController {
         try {
             let data = req.body
 
+            let albumFound : Album | null  = await Album.findOne({
+                where: {
+                    id: data.idAlbum
+                },
+                transaction: transaction
+            })
+
+            if(albumFound && albumFound.nombre == 'FotosPerfil') throw new Error("El album de fotos de perfil no se puede modificar");
+
             await Album.update({
                 nombre: data.nombre
             },
@@ -60,7 +70,7 @@ export default class AlbumController {
             })
 
             await transaction.commit()
-            return res.status(201).send({ error: false, message: 'Se actualizo usuario correctamente', result: album });
+            return res.status(201).send({ error: false, message: 'Se actualizo album correctamente', result: album });
         } catch (error: any) {
             await transaction.rollback()
             return res.status(500).send({ error: true, message: error.message });
@@ -116,8 +126,11 @@ export default class AlbumController {
 
             let albums: Album[] | null = await Album.findAll({
                 where: {
-                    id: params.idUsuario,
+                    IdUsuario: params.idUsuario,
                 },
+                include: [
+                    { model: Foto }
+                ],
                 transaction: transaction
             })
 

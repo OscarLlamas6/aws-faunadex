@@ -2,6 +2,7 @@ import React, {Component} from "react";
 import "../css/style.css"
 import {Button,Form,Alert} from "react-bootstrap";
 import http from '../libs/http'
+import globals from '../utilities/globals'
 
 class Login extends Component {
     state = {
@@ -17,7 +18,7 @@ class Login extends Component {
     }
 
     Login=async()=>{
-        let req = await http.post('http://localhost:4000/usuario/login',{
+        let req = await http.post(`${globals.enlace}/usuario/login`,{
             userName: this.state.user,
             password: this.state.password
         })

@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequalize_1 = require("../sequalize");
 const Album_1 = require("../models/Album");
+const Foto_1 = require("../models/Foto");
 class AlbumController {
     createAlbum(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -44,6 +45,14 @@ class AlbumController {
             let transaction = yield sequalize_1.sequelize.transaction();
             try {
                 let data = req.body;
+                let albumFound = yield Album_1.Album.findOne({
+                    where: {
+                        id: data.idAlbum
+                    },
+                    transaction: transaction
+                });
+                if (albumFound && albumFound.nombre == 'FotosPerfil')
+                    throw new Error("El album de fotos de perfil no se puede modificar");
                 yield Album_1.Album.update({
                     nombre: data.nombre
                 }, {
@@ -59,7 +68,7 @@ class AlbumController {
                     transaction: transaction
                 });
                 yield transaction.commit();
-                return res.status(201).send({ error: false, message: 'Se actualizo usuario correctamente', result: album });
+                return res.status(201).send({ error: false, message: 'Se actualizo album correctamente', result: album });
             }
             catch (error) {
                 yield transaction.rollback();
@@ -116,8 +125,11 @@ class AlbumController {
                 let params = req.params;
                 let albums = yield Album_1.Album.findAll({
                     where: {
-                        id: params.idUsuario,
+                        IdUsuario: params.idUsuario,
                     },
+                    include: [
+                        { model: Foto_1.Foto }
+                    ],
                     transaction: transaction
                 });
                 yield transaction.commit();
