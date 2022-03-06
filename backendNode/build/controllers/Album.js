@@ -68,7 +68,7 @@ class AlbumController {
                     transaction: transaction
                 });
                 yield transaction.commit();
-                return res.status(201).send({ error: false, message: 'Se actualizo usuario correctamente', result: album });
+                return res.status(201).send({ error: false, message: 'Se actualizo album correctamente', result: album });
             }
             catch (error) {
                 yield transaction.rollback();

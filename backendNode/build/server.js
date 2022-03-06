@@ -16,7 +16,7 @@ class Server {
         this.routes();
     }
     config() {
-        this.app.set('port', process.env.PORT || 4000);
+        this.app.set('port', process.env.PORT || 80);
         this.app.use(express_1.default.json());
     }
     routes() {

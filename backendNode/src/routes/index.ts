@@ -15,6 +15,11 @@ class IndexRoutes {
         this.router.use('/usuario', Usuario)
         this.router.use('/album', Album)
         this.router.use('/foto', Foto)
+        this.router.get('/', (req, res) => {
+            res.send({
+                Instancia: 'NodeJs'
+            })
+        })
     }
 }
 
