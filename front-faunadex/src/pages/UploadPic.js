@@ -37,8 +37,8 @@ class UploadPic extends Component {
 
     createFoto = async () => {
 
-        if(this.state.albums.length == 0)return
-        else await this.setState({selecalbum: this.state.albums[0].id})
+        if (this.state.albums.length == 0) return
+        else if (this.state.selecalbum == '') await this.setState({ selecalbum: this.state.albums[0].id })
 
         let req = await http.post(`${globals.enlace}/foto/subirFoto`, {
             nombre: this.state.name,
