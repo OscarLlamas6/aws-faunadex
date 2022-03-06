@@ -13,7 +13,7 @@
 
 ### Página web
 
-Se realizó el frontend de la aplicación con REACT subida en un bucket de S3 público
+http://practica1g8paginaweb.s3-website.us-east-2.amazonaws.com/
 
 ### Balanceador de carga
 
