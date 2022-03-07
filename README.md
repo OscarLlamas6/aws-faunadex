@@ -1,7 +1,9 @@
-# Seminario de Sistemas 1
-## _Practica 1_ 
+### Seminario de Sistemas 1
+### Practica 1
 
-### Datos Estudiantes
+# Manual de Configuración
+
+## Datos Estudiantes
 | Nombre | Carné |
 | ------ | ------ |
 | Carlos Raúl Campos Meléndez | 201800639 |
@@ -13,7 +15,7 @@
 
 ### Página web
 
-http://practica1g8paginaweb.s3-website.us-east-2.amazonaws.com/
+Se realizó el frontend de la aplicación con REACT subida en un bucket de S3 público
 
 ### Balanceador de carga
 
