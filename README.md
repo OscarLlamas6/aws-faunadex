@@ -69,7 +69,7 @@ Para el trabajo con la instancia RDS se creó el usuario User_RDS con la políti
 
 En esta sección se presentaran todas las pantallas de la aplcación web derrollada para la presente práctica.
 
-##### Registro
+#### Registro
 
 ![registro.png](img/registro.png)
 
@@ -77,39 +77,39 @@ En esta ventana es posible registrar un nuevo usuario a la base de datos para lu
 Se solicita nombre de usuario, el cual no puede ser repetido, contraseña, una confirmación de la contraseña 
 para mayor seguridad y una foto de perfil seleccionada desde el dispositivo del usuario.
 
-##### Ingreso
+#### Ingreso
 
 ![ingreso.png](img/ingreso.png)
 
 En la ventana de ingreso se solicita el nombre y contraseña del usuario.
 
-##### Inicio
+#### Inicio
 
 ![inicio.png](img/inicio.png)
 
 En esta ventana se presentan datos como el nombre del usuario, su nombre completo y su foto de perfil.
 Desde el inicio es posible acceder a todas las funcionalidades que tiene la aplicación web.
 
-##### Editar Perfil
+#### Editar Perfil
 
 ![editarperfil.png](img/editarperfil.png)
 
 Será posible editar el nombre de usuario, el nombre completo y la foto de perfil del usuario ingresado.
 Para editar el nombre de usuario y el nombre completo será necesario ingresar la contraseña del usuario ingresado antes de guardar cambios.
 
-##### Editar Album
+#### Editar Album
 
 ![editaralbum.png](img/editaralbum.png)
 
 En esta sección es posible editar, crear y eliminar un albúm existente del usuario ingresado.
 
-##### Subir Foto
+#### Subir Foto
 
 ![subirfoto.png](img/subirfoto.png)
 
 Es posible subir fotos a los albumes creados por el usuario por medio de esta ventana de la aplicación.
 
-##### Ver Fotos
+#### Ver Fotos
 
 ![verfotos.png](img/verfotos.png)
 
