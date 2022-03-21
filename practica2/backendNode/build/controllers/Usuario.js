@@ -20,19 +20,6 @@ const Album_1 = require("../models/Album");
 const Foto_1 = require("../models/Foto");
 const sequelize_1 = require("sequelize");
 class UsuarioController {
-    constructor() {
-        this.getUsuarios = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            try {
-                let result = {
-                    nombre: "Seminario",
-                };
-                return res.status(201).send({ error: false, result: result });
-            }
-            catch (error) {
-                return res.status(500).send({ error: true, message: error.message });
-            }
-        });
-    }
     login(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             let transaction = yield sequalize_1.sequelize.transaction();
@@ -52,6 +39,33 @@ class UsuarioController {
                 usuario.password = '';
                 yield transaction.commit();
                 return res.status(201).send({ error: false, message: 'Login exitoso', result: usuario });
+            }
+            catch (error) {
+                yield transaction.rollback();
+                return res.status(500).send({ error: true, message: error.message });
+            }
+        });
+    }
+    loginFacial(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let transaction = yield sequalize_1.sequelize.transaction();
+            try {
+                let data = req.body;
+                const usuario = yield Usuario_1.Usuario.findOne({
+                    where: {
+                        id: data.UsuarioId,
+                    },
+                    transaction: transaction
+                });
+                if (!usuario || !usuario.linkFotoPerfil)
+                    throw new Error("Este usuario no tiene foto de perfil");
+                let linkFotoPerfil = usuario.linkFotoPerfil.split('/');
+                if (linkFotoPerfil.length == 0)
+                    throw new Error("No se pudo realizar el reconocimiento facial");
+                let pathFotoPerfil = `${linkFotoPerfil[linkFotoPerfil.length - 2]}/${linkFotoPerfil[linkFotoPerfil.length - 1]}`;
+                let comparacion = yield awsService_1.default.instance.compararImagen(pathFotoPerfil, data.FotoBytes);
+                yield transaction.commit();
+                return res.status(201).send({ error: false, mensaje: 'Registro exitoso', result: comparacion.FaceMatches });
             }
             catch (error) {
                 yield transaction.rollback();
@@ -80,7 +94,7 @@ class UsuarioController {
                     userName: data.userName,
                     nombre: data.nombre,
                     password: passEncryptada,
-                    linkFotoPerfil: linkFotoS3.Location ? linkFotoS3.Location : ''
+                    linkFotoPerfil: linkFotoS3 && linkFotoS3.Location ? linkFotoS3.Location : ''
                 }, { transaction: transaction });
                 //Se crea el album 'FotosPerfil' por default al crearse el usuario
                 const album = yield Album_1.Album.create({
@@ -91,7 +105,7 @@ class UsuarioController {
                 const foto = yield Foto_1.Foto.create({
                     nombre: '',
                     IdAlbum: album.id,
-                    link: linkFotoS3.Location ? linkFotoS3.Location : ''
+                    link: linkFotoS3 && linkFotoS3.Location ? linkFotoS3.Location : ''
                 }, { transaction: transaction });
                 yield transaction.commit();
                 return res.status(201).send({ error: false, mensaje: 'Registro exitoso', result: true });
@@ -153,7 +167,7 @@ class UsuarioController {
                 if (data.linkFotoPerfil)
                     linkFotoS3 = yield awsService_1.default.instance.uploadFoto(data.linkFotoPerfil, true);
                 yield Usuario_1.Usuario.update({
-                    linkFotoPerfil: linkFotoS3.Location ? linkFotoS3.Location : ''
+                    linkFotoPerfil: linkFotoS3 && linkFotoS3.Location ? linkFotoS3.Location : ''
                 }, {
                     where: {
                         id: data.usuarioId,
@@ -172,10 +186,10 @@ class UsuarioController {
                 const foto = yield Foto_1.Foto.create({
                     nombre: '',
                     IdAlbum: albumEncontrado.id,
-                    link: linkFotoS3.Location ? linkFotoS3.Location : ''
+                    link: linkFotoS3 && linkFotoS3.Location ? linkFotoS3.Location : ''
                 }, { transaction: transaction });
                 yield transaction.commit();
-                return res.status(201).send({ error: false, message: 'Se actualizo usuario correctamente', result: linkFotoS3.Location });
+                return res.status(201).send({ error: false, message: 'Se actualizo usuario correctamente', result: foto.link });
             }
             catch (error) {
                 yield transaction.rollback();

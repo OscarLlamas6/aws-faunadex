@@ -17,7 +17,8 @@ class Server {
     }
     config() {
         this.app.set('port', process.env.PORT || 4000);
-        this.app.use(express_1.default.json());
+        this.app.use(express_1.default.urlencoded({ limit: '10mb', extended: false }));
+        this.app.use(express_1.default.json({ limit: '10mb' }));
     }
     routes() {
         this.app.use('/', index_1.default);
