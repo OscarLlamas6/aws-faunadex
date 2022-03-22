@@ -10,6 +10,7 @@ exports.Album = void 0;
 const sequelize_typescript_1 = require("sequelize-typescript");
 const Usuario_1 = require("./Usuario");
 const Foto_1 = require("./Foto");
+const DetalleFoto_1 = require("./DetalleFoto");
 let Album = class Album extends sequelize_typescript_1.Model {
 };
 __decorate([
@@ -33,6 +34,9 @@ __decorate([
 __decorate([
     (0, sequelize_typescript_1.HasMany)(() => Foto_1.Foto)
 ], Album.prototype, "Fotos", void 0);
+__decorate([
+    (0, sequelize_typescript_1.HasMany)(() => DetalleFoto_1.DetalleFoto)
+], Album.prototype, "DetalleFoto", void 0);
 Album = __decorate([
     (0, sequelize_typescript_1.Table)({
         tableName: 'Albums',

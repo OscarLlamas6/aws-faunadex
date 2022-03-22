@@ -59,13 +59,55 @@ class UsuarioController {
                 });
                 if (!usuario || !usuario.linkFotoPerfil)
                     throw new Error("Este usuario no tiene foto de perfil");
+                //se hace un split de la ruta de la foto de perfil
                 let linkFotoPerfil = usuario.linkFotoPerfil.split('/');
                 if (linkFotoPerfil.length == 0)
                     throw new Error("No se pudo realizar el reconocimiento facial");
+                //aqui se hace el path con el cual rekognition ira a buscar la imagen al bucket -> fotosPerfil/imagen.jpg
                 let pathFotoPerfil = `${linkFotoPerfil[linkFotoPerfil.length - 2]}/${linkFotoPerfil[linkFotoPerfil.length - 1]}`;
+                //metodo para comparar imagenes, recibe como parametros el path de la foto de perfil y aparte la foto en bytes de la foto que se toma en el momento de hacer login
                 let comparacion = yield awsService_1.default.instance.compararImagen(pathFotoPerfil, data.FotoBytes);
+                if ((!comparacion.FaceMatches ||
+                    comparacion.FaceMatches.length == 0)
+                    ||
+                        (!comparacion ||
+                            !comparacion.FaceMatches ||
+                            !comparacion.FaceMatches[0] ||
+                            !comparacion.FaceMatches[0].Similarity ||
+                            comparacion.FaceMatches[0].Similarity < 90))
+                    throw new Error("Los rostros no coinciden");
                 yield transaction.commit();
                 return res.status(201).send({ error: false, mensaje: 'Registro exitoso', result: comparacion.FaceMatches });
+            }
+            catch (error) {
+                yield transaction.rollback();
+                return res.status(500).send({ error: true, message: error.message });
+            }
+        });
+    }
+    getTagsFotoPerfil(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let transaction = yield sequalize_1.sequelize.transaction();
+            try {
+                let { UsuarioId } = req.query;
+                const usuario = yield Usuario_1.Usuario.findOne({
+                    where: {
+                        id: UsuarioId,
+                    },
+                    transaction: transaction
+                });
+                if (!usuario || !usuario.linkFotoPerfil)
+                    throw new Error("Este usuario no tiene foto de perfil");
+                //se hace un split de la ruta de la foto de perfil
+                let linkFotoPerfil = usuario.linkFotoPerfil.split('/');
+                if (linkFotoPerfil.length == 0)
+                    throw new Error("No se pudo extraer tags de la imagen");
+                //aqui se hace el path con el cual rekognition ira a buscar la imagen al bucket -> fotosPerfil/imagen.jpg
+                let pathFotoPerfil = `${linkFotoPerfil[linkFotoPerfil.length - 2]}/${linkFotoPerfil[linkFotoPerfil.length - 1]}`;
+                //metodo para comparar imagenes, recibe como parametros el path de la foto de perfil y aparte la foto en bytes de la foto que se toma en el momento de hacer login
+                let comparacion = yield awsService_1.default.instance.getTagsImagen(pathFotoPerfil, false);
+                yield transaction.commit();
+                return res.status(201).send({ error: false, mensaje: 'Se extrajeron tags de imagen exitosamente', result: comparacion.Labels });
             }
             catch (error) {
                 yield transaction.rollback();

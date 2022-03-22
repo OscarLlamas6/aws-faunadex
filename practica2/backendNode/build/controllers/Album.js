@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const sequalize_1 = require("../sequalize");
 const Album_1 = require("../models/Album");
 const Foto_1 = require("../models/Foto");
+const DetalleFoto_1 = require("../models/DetalleFoto");
 class AlbumController {
     createAlbum(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -128,7 +129,12 @@ class AlbumController {
                         IdUsuario: params.idUsuario,
                     },
                     include: [
-                        { model: Foto_1.Foto }
+                        {
+                            model: DetalleFoto_1.DetalleFoto,
+                            include: [
+                                { model: Foto_1.Foto }
+                            ]
+                        }
                     ],
                     transaction: transaction
                 });

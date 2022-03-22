@@ -14,6 +14,10 @@ Usuario.post('/loginFacial', function (req, res) { // TODO: Seguridad de endpoin
     controller.instance.loginFacial(req, res)
 });
 
+Usuario.get('/getTagsFotoPerfil', function (req, res) { // TODO: Seguridad de endpoint
+    controller.instance.getTagsFotoPerfil(req, res)
+});
+
 Usuario.post('/registro', function (req, res) { // TODO: Seguridad de endpoint
     controller.instance.createUser(req, res)
 });

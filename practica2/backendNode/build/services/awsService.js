@@ -24,8 +24,20 @@ const rekognition = new aws_sdk_1.default.Rekognition({
     accessKeyId: process.env.REKAKI,
     secretAccessKey: process.env.REKAK,
 });
+const translate = new aws_sdk_1.default.Translate({
+    accessKeyId: process.env.REKAKI,
+    secretAccessKey: process.env.REKAK,
+});
 class AwsService {
     constructor() {
+        this.translate = (idioma, text) => __awaiter(this, void 0, void 0, function* () {
+            let tranduccion = yield translate.translateText({
+                Text: text,
+                SourceLanguageCode: 'es',
+                TargetLanguageCode: idioma
+            }).promise();
+            return tranduccion;
+        });
         this.uploadFoto = (foto, esPerfil) => __awaiter(this, void 0, void 0, function* () {
             let buff = Buffer.from(foto, 'base64');
             let id = (0, uuid_1.v4)();
@@ -54,6 +66,36 @@ class AwsService {
                 }
             }).promise();
             return comparacion;
+        });
+        this.getTagsImagen = (pathFotoPerfil, esBase64) => __awaiter(this, void 0, void 0, function* () {
+            let imagen;
+            if (esBase64) {
+                let buff = Buffer.from(pathFotoPerfil, 'base64');
+                imagen = {
+                    Bytes: buff
+                };
+            }
+            else {
+                imagen = {
+                    S3Object: {
+                        Bucket: 'semi1practica1',
+                        Name: pathFotoPerfil,
+                    }
+                };
+            }
+            let labels = yield rekognition.detectLabels({
+                Image: imagen
+            }).promise();
+            return labels;
+        });
+        this.getTextImagen = (fotoEnBytes) => __awaiter(this, void 0, void 0, function* () {
+            let buff = Buffer.from(fotoEnBytes, 'base64');
+            let text = yield rekognition.detectText({
+                Image: {
+                    Bytes: buff
+                }
+            }).promise();
+            return text;
         });
     }
 }

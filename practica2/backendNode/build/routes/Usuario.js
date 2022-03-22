@@ -15,6 +15,9 @@ exports.Usuario.post('/login', function (req, res) {
 exports.Usuario.post('/loginFacial', function (req, res) {
     Usuario_1.default.instance.loginFacial(req, res);
 });
+exports.Usuario.get('/getTagsFotoPerfil', function (req, res) {
+    Usuario_1.default.instance.getTagsFotoPerfil(req, res);
+});
 exports.Usuario.post('/registro', function (req, res) {
     Usuario_1.default.instance.createUser(req, res);
 });
