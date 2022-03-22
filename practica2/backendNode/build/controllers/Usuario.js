@@ -53,11 +53,13 @@ class UsuarioController {
                 let data = req.body;
                 const usuario = yield Usuario_1.Usuario.findOne({
                     where: {
-                        id: data.UsuarioId,
+                        userName: data.UserUsuario,
                     },
                     transaction: transaction
                 });
-                if (!usuario || !usuario.linkFotoPerfil)
+                if (!usuario)
+                    throw new Error("Este usuario no esta registrado");
+                if (!usuario.linkFotoPerfil)
                     throw new Error("Este usuario no tiene foto de perfil");
                 //se hace un split de la ruta de la foto de perfil
                 let linkFotoPerfil = usuario.linkFotoPerfil.split('/');
