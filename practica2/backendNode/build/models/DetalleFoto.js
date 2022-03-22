@@ -6,43 +6,38 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Foto = void 0;
+exports.DetalleFoto = void 0;
 const sequelize_typescript_1 = require("sequelize-typescript");
 const Album_1 = require("./Album");
-const DetalleFoto_1 = require("./DetalleFoto");
-let Foto = class Foto extends sequelize_typescript_1.Model {
+const Foto_1 = require("./Foto");
+let DetalleFoto = class DetalleFoto extends sequelize_typescript_1.Model {
 };
-__decorate([
-    (0, sequelize_typescript_1.Column)({ allowNull: false, type: sequelize_typescript_1.DataType.STRING })
-], Foto.prototype, "nombre", void 0);
-__decorate([
-    (0, sequelize_typescript_1.Column)({ allowNull: true, type: sequelize_typescript_1.DataType.STRING })
-], Foto.prototype, "descripcion", void 0);
-__decorate([
-    (0, sequelize_typescript_1.Column)({ allowNull: false, type: sequelize_typescript_1.DataType.STRING })
-], Foto.prototype, "link", void 0);
 __decorate([
     sequelize_typescript_1.CreatedAt,
     (0, sequelize_typescript_1.Column)({ allowNull: false, type: sequelize_typescript_1.DataType.DATE })
-], Foto.prototype, "createdAt", void 0);
+], DetalleFoto.prototype, "createdAt", void 0);
 __decorate([
     sequelize_typescript_1.UpdatedAt,
     (0, sequelize_typescript_1.Column)({ allowNull: false, type: sequelize_typescript_1.DataType.DATE })
-], Foto.prototype, "updatedAt", void 0);
+], DetalleFoto.prototype, "updatedAt", void 0);
 __decorate([
     (0, sequelize_typescript_1.ForeignKey)(() => Album_1.Album),
-    (0, sequelize_typescript_1.Column)({ allowNull: true, type: sequelize_typescript_1.DataType.INTEGER })
-], Foto.prototype, "IdAlbum", void 0);
+    (0, sequelize_typescript_1.Column)({ allowNull: false, type: sequelize_typescript_1.DataType.INTEGER })
+], DetalleFoto.prototype, "IdAlbum", void 0);
 __decorate([
     (0, sequelize_typescript_1.BelongsTo)(() => Album_1.Album)
-], Foto.prototype, "album", void 0);
+], DetalleFoto.prototype, "album", void 0);
 __decorate([
-    (0, sequelize_typescript_1.HasMany)(() => DetalleFoto_1.DetalleFoto)
-], Foto.prototype, "DetalleFoto", void 0);
-Foto = __decorate([
+    (0, sequelize_typescript_1.ForeignKey)(() => Foto_1.Foto),
+    (0, sequelize_typescript_1.Column)({ allowNull: false, type: sequelize_typescript_1.DataType.INTEGER })
+], DetalleFoto.prototype, "IdFoto", void 0);
+__decorate([
+    (0, sequelize_typescript_1.BelongsTo)(() => Foto_1.Foto)
+], DetalleFoto.prototype, "foto", void 0);
+DetalleFoto = __decorate([
     (0, sequelize_typescript_1.Table)({
-        tableName: 'Fotos',
+        tableName: 'DetalleFoto',
         timestamps: true,
     })
-], Foto);
-exports.Foto = Foto;
+], DetalleFoto);
+exports.DetalleFoto = DetalleFoto;

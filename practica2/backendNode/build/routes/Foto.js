@@ -13,3 +13,12 @@ exports.Foto.post('/subirFoto', function (req, res) {
 exports.Foto.get('/getFotos/:idAlbum', function (req, res) {
     Foto_1.default.instance.getFotos(req, res);
 });
+exports.Foto.post('/getTextImagen', function (req, res) {
+    Foto_1.default.instance.getTextImagen(req, res);
+});
+exports.Foto.post('/createFotoAnimal', function (req, res) {
+    Foto_1.default.instance.createFotoAnimal(req, res);
+});
+exports.Foto.post('/translateDescripcionImagen', function (req, res) {
+    Foto_1.default.instance.translateDescripcionImagen(req, res);
+});

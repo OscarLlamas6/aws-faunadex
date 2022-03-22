@@ -3,8 +3,6 @@ import express from 'express';
 import indexRoutes from './routes/index';
 import { sequelize } from './sequalize'
 
-import { Usuario } from './models/Usuario'
-
 var cors = require('cors')
 
 class Server {
@@ -20,7 +18,8 @@ class Server {
 
     config() {
         this.app.set('port', process.env.PORT || 4000)
-        this.app.use(express.json())
+        this.app.use(express.urlencoded({limit: '10mb', extended: false}))
+        this.app.use(express.json({limit: '10mb'}))
     }
 
     routes() {

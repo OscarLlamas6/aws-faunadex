@@ -10,17 +10,6 @@ export default class UsuarioController {
 
     static instance = new UsuarioController()
 
-    getUsuarios = async (req: any, res: any) => {
-        try {
-            let result = {
-                nombre: "Seminario",
-            }
-            return res.status(201).send({ error: false, result: result });
-        } catch (error: any) {
-            return res.status(500).send({ error: true, message: error.message });
-        }
-    }
-
     async login(req: any, res: any) {
         let transaction = await sequelize.transaction()
         try {
@@ -43,6 +32,87 @@ export default class UsuarioController {
 
             await transaction.commit()
             return res.status(201).send({ error: false, message: 'Login exitoso', result: usuario });
+        } catch (error: any) {
+            await transaction.rollback()
+            return res.status(500).send({ error: true, message: error.message });
+        }
+    }
+
+    async loginFacial(req: any, res: any) {
+        let transaction = await sequelize.transaction()
+        try {
+            let data = req.body
+
+            const usuario: Usuario | null = await Usuario.findOne({
+                where: {
+                    id: data.UsuarioId,
+                },
+                transaction: transaction
+            })
+
+            if (!usuario || !usuario.linkFotoPerfil) throw new Error("Este usuario no tiene foto de perfil");
+
+            //se hace un split de la ruta de la foto de perfil
+            let linkFotoPerfil: string[] = usuario.linkFotoPerfil.split('/')
+
+            if (linkFotoPerfil.length == 0) throw new Error("No se pudo realizar el reconocimiento facial");
+
+            //aqui se hace el path con el cual rekognition ira a buscar la imagen al bucket -> fotosPerfil/imagen.jpg
+            let pathFotoPerfil = `${linkFotoPerfil[linkFotoPerfil.length - 2]}/${linkFotoPerfil[linkFotoPerfil.length - 1]}`
+
+            //metodo para comparar imagenes, recibe como parametros el path de la foto de perfil y aparte la foto en bytes de la foto que se toma en el momento de hacer login
+            let comparacion = await AwsService.instance.compararImagen(pathFotoPerfil, data.FotoBytes)
+
+            if (
+                (
+                    !comparacion.FaceMatches ||
+                    comparacion.FaceMatches.length == 0
+                )
+                ||
+                (
+                    !comparacion ||
+                    !comparacion.FaceMatches ||
+                    !comparacion.FaceMatches[0] ||
+                    !comparacion.FaceMatches[0].Similarity ||
+                    comparacion.FaceMatches[0].Similarity < 90
+                )
+            ) throw new Error("Los rostros no coinciden");
+
+            await transaction.commit()
+            return res.status(201).send({ error: false, mensaje: 'Registro exitoso', result: comparacion.FaceMatches });
+        } catch (error: any) {
+            await transaction.rollback()
+            return res.status(500).send({ error: true, message: error.message });
+        }
+    }
+
+    async getTagsFotoPerfil(req: any, res: any) {
+        let transaction = await sequelize.transaction()
+        try {
+            let { UsuarioId } = req.query
+
+            const usuario: Usuario | null = await Usuario.findOne({
+                where: {
+                    id: UsuarioId,
+                },
+                transaction: transaction
+            })
+
+            if (!usuario || !usuario.linkFotoPerfil) throw new Error("Este usuario no tiene foto de perfil");
+
+            //se hace un split de la ruta de la foto de perfil
+            let linkFotoPerfil: string[] = usuario.linkFotoPerfil.split('/')
+
+            if (linkFotoPerfil.length == 0) throw new Error("No se pudo extraer tags de la imagen");
+
+            //aqui se hace el path con el cual rekognition ira a buscar la imagen al bucket -> fotosPerfil/imagen.jpg
+            let pathFotoPerfil = `${linkFotoPerfil[linkFotoPerfil.length - 2]}/${linkFotoPerfil[linkFotoPerfil.length - 1]}`
+
+            //metodo para comparar imagenes, recibe como parametros el path de la foto de perfil y aparte la foto en bytes de la foto que se toma en el momento de hacer login
+            let comparacion = await AwsService.instance.getTagsImagen(pathFotoPerfil, false)
+
+            await transaction.commit()
+            return res.status(201).send({ error: false, mensaje: 'Se extrajeron tags de imagen exitosamente', result: comparacion.Labels });
         } catch (error: any) {
             await transaction.rollback()
             return res.status(500).send({ error: true, message: error.message });
@@ -72,7 +142,7 @@ export default class UsuarioController {
                 userName: data.userName,
                 nombre: data.nombre,
                 password: passEncryptada,
-                linkFotoPerfil: linkFotoS3.Location ? linkFotoS3.Location : ''
+                linkFotoPerfil: linkFotoS3 && linkFotoS3.Location ? linkFotoS3.Location : ''
             },
                 { transaction: transaction }
             )
@@ -89,7 +159,7 @@ export default class UsuarioController {
             const foto: Foto = await Foto.create({
                 nombre: '',
                 IdAlbum: album.id,
-                link: linkFotoS3.Location ? linkFotoS3.Location : ''
+                link: linkFotoS3 && linkFotoS3.Location ? linkFotoS3.Location : ''
             },
                 { transaction: transaction }
             )
@@ -157,7 +227,7 @@ export default class UsuarioController {
             if (data.linkFotoPerfil) linkFotoS3 = await AwsService.instance.uploadFoto(data.linkFotoPerfil, true)
 
             await Usuario.update({
-                linkFotoPerfil: linkFotoS3.Location ? linkFotoS3.Location : ''
+                linkFotoPerfil: linkFotoS3 && linkFotoS3.Location ? linkFotoS3.Location : ''
             },
                 {
                     where: {
@@ -180,13 +250,13 @@ export default class UsuarioController {
             const foto: Foto = await Foto.create({
                 nombre: '',
                 IdAlbum: albumEncontrado.id,
-                link: linkFotoS3.Location ? linkFotoS3.Location : ''
+                link: linkFotoS3 && linkFotoS3.Location ? linkFotoS3.Location : ''
             },
                 { transaction: transaction }
             )
 
             await transaction.commit()
-            return res.status(201).send({ error: false, message: 'Se actualizo usuario correctamente', result: linkFotoS3.Location });
+            return res.status(201).send({ error: false, message: 'Se actualizo usuario correctamente', result: foto.link });
         } catch (error: any) {
             await transaction.rollback()
             return res.status(500).send({ error: true, message: error.message });
