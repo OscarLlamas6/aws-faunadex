@@ -84,7 +84,7 @@ class FotoController {
             try {
                 let data = req.body;
                 let tranduccion = yield awsService_1.default.instance.translate(data.idioma, data.texto);
-                return res.status(201).send({ error: false, message: 'Se extrajo el texto exitosamente', result: tranduccion });
+                return res.status(201).send({ error: false, message: 'Se tradujo el texto exitosamente', result: tranduccion });
             }
             catch (error) {
                 return res.status(500).send({ error: true, message: error.message });

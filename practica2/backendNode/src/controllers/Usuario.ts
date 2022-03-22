@@ -45,12 +45,14 @@ export default class UsuarioController {
 
             const usuario: Usuario | null = await Usuario.findOne({
                 where: {
-                    id: data.UsuarioId,
+                    userName: data.UserUsuario,
                 },
                 transaction: transaction
             })
 
-            if (!usuario || !usuario.linkFotoPerfil) throw new Error("Este usuario no tiene foto de perfil");
+            if (!usuario) throw new Error("Este usuario no esta registrado");
+
+            if (!usuario.linkFotoPerfil) throw new Error("Este usuario no tiene foto de perfil");
 
             //se hace un split de la ruta de la foto de perfil
             let linkFotoPerfil: string[] = usuario.linkFotoPerfil.split('/')
