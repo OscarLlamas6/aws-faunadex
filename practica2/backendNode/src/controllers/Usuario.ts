@@ -81,7 +81,7 @@ export default class UsuarioController {
             ) throw new Error("Los rostros no coinciden");
 
             await transaction.commit()
-            return res.status(201).send({ error: false, mensaje: 'Registro exitoso', result: comparacion.FaceMatches });
+            return res.status(201).send({ error: false, mensaje: 'Registro exitoso', result: usuario, validacion: comparacion.FaceMatches });
         } catch (error: any) {
             await transaction.rollback()
             return res.status(500).send({ error: true, message: error.message });

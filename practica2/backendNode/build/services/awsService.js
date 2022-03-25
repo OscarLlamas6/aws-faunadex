@@ -25,8 +25,8 @@ const rekognition = new aws_sdk_1.default.Rekognition({
     secretAccessKey: process.env.REKAK,
 });
 const translate = new aws_sdk_1.default.Translate({
-    accessKeyId: process.env.REKAKI,
-    secretAccessKey: process.env.REKAK,
+    accessKeyId: process.env.TRANSLATEAKI,
+    secretAccessKey: process.env.TRANSLATESAK,
 });
 class AwsService {
     constructor() {
