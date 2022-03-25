@@ -11,7 +11,8 @@ class UploadPic extends Component {
     state = {
         albums: [],
         selecalbum: "",
-        name: ""
+        name: "",
+        desc: ""
     }
 
     componentDidMount() {
@@ -20,37 +21,18 @@ class UploadPic extends Component {
         }
     }
 
-    componentDidMount() {
-        this.getAlbums()
-    }
-
-    getAlbums = async () => {
-        let userid = window.localStorage.getItem("iduser");
-        let req = await http.get(`${globals.enlace}/album/getAlbums/` + userid)
-        if (req.error) {
-            alert(req.message)
-        } else {
-            console.log(req.result)
-            this.setState({ albums: req.result })
-        }
-    }
-
     createFoto = async () => {
-
-        if (this.state.albums.length == 0) return
-        else if (this.state.selecalbum == '') await this.setState({ selecalbum: this.state.albums[0].id })
-
-        let req = await http.post(`${globals.enlace}/foto/subirFoto`, {
+        let req = await http.post(`${globals.enlace}/foto/createFotoAnimal`, {
             nombre: this.state.name,
-            idAlbum: this.state.selecalbum,
-            linkFoto: reader.result.split(",")[1]
+            descripcion: this.state.desc,
+            idUsuario: window.localStorage.getItem("iduser"),
+            imagenBase64: reader.result.split(",")[1]
         })
         if (req.error) {
-            alert(req.message)
+            console.log(req.message)
         } else {
             alert(req.message)
         }
-        await this.getAlbums()
     }
 
     handleImage = async e => {
@@ -77,13 +59,9 @@ class UploadPic extends Component {
                         <Form.Label>Nombre: </Form.Label>
                         <Form.Control type="text" placeholder="Nombre" name="name" onChange={this.handleChange} />
                         <Form.Label>Elegir Foto</Form.Label>
-                        <Form.Control type="file" onChange={this.handleImage} accept=".jpg,.png" />
-                        <Form.Label>Album: </Form.Label>
-                        <Form.Control as="select" value={this.state.selecalbum} onChange={(e) => this.setState({ selecalbum: e.target.value })}>
-                            {this.state.albums.map(album =>
-                            (<option key={album.id} value={album.id}>
-                                {album.nombre}</option>))}
-                        </Form.Control>
+                        <Form.Control type="file" onChange={this.handleImage} accept=".jpg,.png,.jpeg" />
+                        <Form.Label>Descripcion: </Form.Label>
+                        <Form.Control type="textarea" placeholder="Descripcion" name="desc" onChange={this.handleChange} />
                     </Form.Group>
                     <br />
                     <Button variant="primary" onClick={() => this.createFoto()}>Guardar</Button>
