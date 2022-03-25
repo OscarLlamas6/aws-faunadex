@@ -6,18 +6,18 @@ const BUCKET_NAME = 'semi1practica1';
 AWS.config.region = 'us-east-2'
 
 const s3 = new AWS.S3({
-    accessKeyId: process.env.S3AKI,
-    secretAccessKey: process.env.S3SAK,
+    accessKeyId: 'AKIAYGZNMTQHBZ66O3EB',
+    secretAccessKey: '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',
 });
 
 const rekognition = new AWS.Rekognition({
-    accessKeyId: process.env.REKAKI,
-    secretAccessKey: process.env.REKAK,
+    accessKeyId: 'AKIAYGZNMTQHCMU3USWJ',
+    secretAccessKey: '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',
 })
 
 const translate = new AWS.Translate({
-    accessKeyId: process.env.REKAKI,
-    secretAccessKey: process.env.REKAK,
+    accessKeyId: 'AKIAYGZNMTQHDXEPRQW5',
+    secretAccessKey: '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',
 })
 
 export default class AwsService {

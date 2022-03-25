@@ -79,7 +79,7 @@ class UsuarioController {
                             comparacion.FaceMatches[0].Similarity < 90))
                     throw new Error("Los rostros no coinciden");
                 yield transaction.commit();
-                return res.status(201).send({ error: false, mensaje: 'Registro exitoso', result: comparacion.FaceMatches });
+                return res.status(201).send({ error: false, mensaje: 'Registro exitoso', result: usuario, validacion: comparacion.FaceMatches });
             }
             catch (error) {
                 yield transaction.rollback();
