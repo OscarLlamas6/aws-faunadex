@@ -54,3 +54,50 @@ Para el trabajo con Rekognition  se creó el usuario User_Rekognition con las po
 ### Translate
 
 Para el trabajo con Translate  se creó el usuario User_Translate con las políticas TranslateFullAccess y AmazonCognitoDeveloperAuthenticatedIdentities
+
+## ChatBot
+
+Para la implementación del ChatBot se utilizó Amazon Lex
+
+### Se realizaron las siguientes intenciones:
+
+- Registrar Opinión.
+- Bienvenido.
+- FallBackIntent
+
+## Rekognition
+
+Se implementó la siguiente función para el reconocimiento de labels dentro de la imagen
+
+```jsx
+let labels = await rekognition.detectLabels({
+            Image: imagen
+        }).promise()
+```
+
+Se implementó la siguiente función para obtener el texto dentro de la imagen
+
+```jsx
+let text = await rekognition.detectText({
+            Image: {
+                Bytes: buff
+            }
+        }).promise()
+```
+
+Se implementó la siguiente función para el reconocimiento de rostros en la imagen
+
+```jsx
+let comparacion = await rekognition.compareFaces({
+            SimilarityThreshold: 90,
+            SourceImage: {
+                S3Object: {
+                    Bucket: 'semi1practica1',
+                    Name: pathFotoPerfil,
+                }
+            },
+            TargetImage: {
+                Bytes: buff
+            }
+        }).promise()
+```
